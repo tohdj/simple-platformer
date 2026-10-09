@@ -191,7 +191,8 @@ namespace simple_platformer
         const CameraController& cameraController,
         float atlasWidth,
         float simulationStepSeconds,
-        const NavigationDebugView& navigation)
+        const NavigationDebugView& navigation,
+        std::optional<float> framerate)
     {
         if (!isFinitePositive(simulationStepSeconds))
         {
@@ -282,6 +283,7 @@ namespace simple_platformer
         scene.navigationConnections =
             makeNavigationConnectionsDebugInfo(world, map, simulationStepSeconds, navigation, view);
         scene.breakableCellUnderCursor = breakableCellUnderCursor(map, navigation.cursorWorld);
+        scene.framerate = framerate.value();
         return scene;
     }
 }

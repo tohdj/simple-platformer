@@ -166,7 +166,8 @@ namespace simple_platformer
     DebugOverlay Game::debugOverlay(
         float atlasWidth,
         std::optional<glm::vec2> internalCursor,
-        std::size_t navigationProfileIndex) const
+        std::size_t navigationProfileIndex,
+        std::optional<float> framerate) const        
     {
         NavigationDebugView navigation;
         if (internalCursor.has_value())
@@ -193,7 +194,8 @@ namespace simple_platformer
             cameraControllerValue(),
             atlasWidth,
             simulationStepSeconds,
-            navigation);
+            navigation,
+            framerate);
         for (ActorDebugInfo& actor : overlay.actors)
         {
             const auto definition = level.actorDefinitionNames.find(actor.id.value);

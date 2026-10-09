@@ -114,6 +114,7 @@ namespace simple_platformer
         std::optional<Aabb> breakableCellUnderCursor;
         Aabb cameraBounds;
         Aabb cameraDeadZone;
+        float framerate;
     };
 
     // simulationStepSeconds is the fixed step the world is simulated with; predicted jump
@@ -125,5 +126,6 @@ namespace simple_platformer
         const CameraController& cameraController,
         float atlasWidth,
         float simulationStepSeconds,
-        const NavigationDebugView& navigation = {});
+        const NavigationDebugView& navigation = {},
+        std::optional<float> framerate = std::nullopt);
 }

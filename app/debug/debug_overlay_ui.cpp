@@ -459,6 +459,9 @@ namespace simple_platformer
         }
     }
 
+    /**
+    * Draw the debug information as an overlay on the viewport
+    */
     void drawDebugOverlay(const DebugOverlay& scene, const std::optional<WindowViewport>& viewport)
     {
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
@@ -478,6 +481,9 @@ namespace simple_platformer
                 screenPosition(scene.cameraDeadZone.topLeft, scene.cameraBounds, *viewport),
                 CameraDeadZoneColour,
                 "camera dead zone");
+            // Draw the framerate
+            drawText(
+                *drawList, 50, 100, std::to_string(scene.framerate).c_str(), TextHeadingColour);
         }
 
         for (const ActorDebugInfo& actor : scene.actors)
