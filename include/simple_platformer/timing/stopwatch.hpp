@@ -15,8 +15,12 @@ namespace simple_platformer
         // Returns seconds since construction or the last lap, then restarts the clock.
         // The application calls this once per frame to measure frame time.
         float lapSeconds();
+        // Get the frame rate
+        float getFramerate();
 
     private:
         std::chrono::steady_clock::time_point start;
+        int nFrames;
+        float totalFrameTime, frameRate;
     };
 }
