@@ -5,7 +5,10 @@
 namespace simple_platformer
 {
     Stopwatch::Stopwatch()
-        : start(std::chrono::steady_clock::now())
+        : start(std::chrono::steady_clock::now()),
+          nFrames(0),
+          totalFrameTime(0.0f),
+          frameRate(0.0f)
     {
     }
 
@@ -19,6 +22,22 @@ namespace simple_platformer
         const auto now = std::chrono::steady_clock::now();
         const float elapsed = std::chrono::duration<float>(now - start).count();
         start = now;
+
+        nFrames++;
+        totalFrameTime += elapsed;
+        if (totalFrameTime > 1.0f)
+        {
+            frameRate = nFrames / totalFrameTime;
+            nFrames = 0;
+            totalFrameTime = 0.0f;
+        }
         return elapsed;
     }
+
+            // Get the frame rate
+    float Stopwatch::getFramerate()
+    {
+        return frameRate;
+    }
+
 }
