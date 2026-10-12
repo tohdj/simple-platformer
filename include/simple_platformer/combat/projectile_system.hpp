@@ -1,3 +1,13 @@
+/**
+ * @file projectile_simulation.hpp
+ * @brief Simulates velocities, tracks lifecycles, and resolves collisions for world projectiles and
+ * bursts.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 namespace simple_platformer
