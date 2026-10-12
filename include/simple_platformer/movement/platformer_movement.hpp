@@ -1,3 +1,13 @@
+/**
+ * @file platformer_movement.hpp
+ * @brief Kinematic movement parameters, configuration validation, and integration routines for
+ * platformer physics.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include "simple_platformer/input/input_state.hpp"
@@ -22,38 +32,42 @@ namespace simple_platformer
      */
     struct PlatformerMovementConfig
     {
-        /// Maximum horizontal velocity limit in world pixels per second.
-        float maximumSpeed = 100.0F;
-        /// Rate of speed gain applied horizontally while standing on solid floor surfaces.
-        float groundAcceleration = 800.0F;
-        /// Rate of speed gain applied horizontally while airborne.
-        float airAcceleration = 400.0F;
-        /// Braking force scale applied horizontally when no horizontal input is active on the
-        /// ground.
-        float groundDeceleration = 1000.0F;
-        /// Initial upward vertical velocity applied instantly at the moment of jumping.
-        float jumpSpeed = 240.0F;
-        /// Downward acceleration scale applied under standard falling or rising circumstances.
-        float gravity = DefaultGravity;
-        /// Increased gravity scale applied if the player releases the jump button early (allows
-        /// variable jump control).
-        float jumpReleaseGravity = 2.0F * DefaultGravity;
-        /// Maximum downward terminal velocity cap to prevent excessive falling speed.
-        float maximumFallSpeed = DefaultMaximumFallSpeed;
-        /// Grace window duration in seconds allowing jumps shortly after running off an edge.
-        float coyoteDuration = 0.1F;
-        /// Time window duration in seconds to cache a jump command pressed slightly before touching
-        /// down.
-        float jumpBufferDuration = 0.1F;
+        float maximumSpeed =
+            100.0F; /**< Maximum horizontal velocity limit in world pixels per second. */
+        float groundAcceleration = 800.0F; /**< Rate of speed gain applied horizontally while
+                                              standing on solid floor surfaces. */
+        float airAcceleration =
+            400.0F; /**< Rate of speed gain applied horizontally while airborne. */
+        float groundDeceleration = 1000.0F; /**< Braking force scale applied horizontally when no
+                                               horizontal input is active on the ground. */
+        float jumpSpeed = 240.0F; /**< Initial upward vertical velocity applied instantly at the
+                                     moment of jumping. */
+        float gravity = DefaultGravity; /**< Downward acceleration scale applied under standard
+                                           falling or rising circumstances. */
+        float jumpReleaseGravity =
+            2.0F * DefaultGravity; /**< Increased gravity scale applied if the player releases the
+                                      jump button early (allows variable jump control). */
+        float maximumFallSpeed =
+            DefaultMaximumFallSpeed; /**< Maximum downward terminal velocity cap to prevent
+                                        excessive falling speed. */
+        float coyoteDuration = 0.1F; /**< Grace window duration in seconds allowing jumps shortly
+                                        after running off an edge. */
+        float jumpBufferDuration = 0.1F; /**< Time window duration in seconds to cache a jump
+                                            command pressed slightly before touching down. */
     };
 
     /**
      * @brief Asserts and verifies that movement parameters fall within mathematically logical
      * limits.
      * @param config The immutable configuration properties block to inspect.
+     * @throws std::invalid_argument or similar exception if validation parameters fall below zero.
      */
     void validatePlatformerMovementConfig(const PlatformerMovementConfig& config);
+
+    /** @brief Evaluates two movement configurations for logical equality. */
     bool operator==(const PlatformerMovementConfig& left, const PlatformerMovementConfig& right);
+
+    /** @brief Evaluates two movement configurations for logical inequality. */
     bool operator!=(const PlatformerMovementConfig& left, const PlatformerMovementConfig& right);
 
     /**
@@ -75,19 +89,16 @@ namespace simple_platformer
      */
     struct PlatformerMovement
     {
-        /// The physics coefficients profile guiding this actor's motion rule logic.
-        PlatformerMovementConfig config;
-        /// True if the actor's physics bounding box was firmly supported by a floor surface last
-        /// update tick.
-        bool grounded = false;
-        /// Tracking clock timer in seconds monitoring the remaining coyote grace window.
-        float coyoteRemaining = 0.0F;
-        /// Tracking clock timer in seconds measuring the expiration threshold of buffered jump
-        /// clicks.
-        float jumpBufferRemaining = 0.0F;
-        /// Flag indicating horizontal movement was actively arrested by a solid wall obstacle or
-        /// ledge guard block.
-        bool blocked = false;
+        PlatformerMovementConfig
+            config; /**< The physics coefficients profile guiding this actor's motion rule logic. */
+        bool grounded = false; /**< True if the actor's physics bounding box was firmly supported by
+                                  a floor surface last update tick. */
+        float coyoteRemaining = 0.0F; /**< Tracking clock timer in seconds monitoring the remaining
+                                         coyote grace window. */
+        float jumpBufferRemaining = 0.0F; /**< Tracking clock timer in seconds measuring the
+                                             expiration threshold of buffered jump clicks. */
+        bool blocked = false; /**< Flag indicating horizontal movement was actively arrested by a
+                                 solid wall obstacle or ledge guard block. */
     };
 
     /**

@@ -1,3 +1,13 @@
+/**
+ * @file input_program.hpp
+ * @brief Scripted input macros, time-slice replication steps, and timeline sampling utilities for
+ * automated replays.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <vector>
@@ -7,7 +17,8 @@
 namespace simple_platformer
 {
     /**
-     * @brief A timed sequence segment tracking a static set of inputs for automation or testing.
+     * @brief A timed sequence segment tracking a static set of inputs for automation or
+     * path-finding replay.
      *
      * Replay evaluation returns edge flags (like initial press events) consistently on every call
      * within this timeframe block. The step durations must be aligned with fixed physics
@@ -15,13 +26,13 @@ namespace simple_platformer
      */
     struct InputStep
     {
-        /// Total execution duration in seconds to continuously feed these inputs.
-        float duration = 0.0F;
-        /// The set of input commands to mimic during this time slice.
-        InputIntentions intentions;
+        float duration =
+            0.0F; /**< Total execution duration in seconds to continuously feed these inputs. */
+        InputIntentions
+            intentions; /**< The set of input commands to mimic during this time slice. */
     };
 
-    /// A linear collection of input stages defining a scripted input macro sequence.
+    /** @brief A linear collection of input stages defining a scripted input macro sequence. */
     using InputProgram = std::vector<InputStep>;
 
     /**

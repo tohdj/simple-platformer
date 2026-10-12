@@ -1,3 +1,13 @@
+/**
+ * @file platformer_traversal_profile.hpp
+ * @brief Configuration profiles detailing static movement capabilities and physical constraints for
+ * actor archetypes.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>
@@ -45,18 +55,16 @@ namespace simple_platformer
         {
         }
 
-        /// Bounding physics footprint layout dimensions measured in world pixels.
-        glm::vec2 size = {0.0F, 0.0F};
-
-        /// Core structural physics rules containing coefficients for friction, speeds, and forces.
-        PlatformerMovementConfig movement;
-
-        /// Fixed snapshot step duration metric matching the target simulation framerate slice.
-        float stepSeconds = 0.0F;
-
-        /// Optional configuration details enabling and detailing ladder or vertical wall-scaling
-        /// parameters.
-        std::optional<SurfaceClimbConfig> climb;
+        glm::vec2 size = {
+            0.0F,
+            0.0F}; /**< Bounding physics footprint layout dimensions measured in world pixels. */
+        PlatformerMovementConfig movement; /**< Core structural physics rules containing
+                                              coefficients for friction, speeds, and forces. */
+        float stepSeconds = 0.0F; /**< Fixed snapshot step duration metric matching the target
+                                     simulation framerate slice. */
+        std::optional<SurfaceClimbConfig>
+            climb; /**< Optional configuration details enabling and detailing ladder or vertical
+                      wall-scaling parameters. */
     };
 
     /**

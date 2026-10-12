@@ -1,3 +1,12 @@
+/**
+ * @file coward_state_machine.hpp
+ * @brief State machine transitions and frame updates for the evasion-focused Coward NPC archetype.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>
@@ -13,8 +22,8 @@ namespace simple_platformer
     /**
      * @brief Determines the next state transition for a Coward NPC based on current metrics.
      *
-     * The Coward archetype typically switches between `Idle`, `Patrol`, `Flee`, or `Bite`
-     * depending on proximity to threats or combat advantages.
+     * The Coward archetype typically switches between four primary states: `Idle`, `Patrol`,
+     * `Flee`, or `Bite` depending on proximity to threats or immediate combat advantages.
      *
      * @param state The active AI state of the Coward during this frame loop.
      * @param facts Environmental and sensory metrics gathered about the NPC.
@@ -38,7 +47,7 @@ namespace simple_platformer
      * @brief Executes the frame-by-frame behavioral logic for the Coward's active state.
      *
      * Processes ongoing actions such as updating path nodes during patrol, turning away from a
-     * threat during a flee sequence, or winding up an attack.
+     * threat during a flee sequence, or winding up a close-quarters desperate attack.
      *
      * @param update Frame delta time and global updates required for tick adjustments.
      * @param actor The underlying physical actor entity data structure.

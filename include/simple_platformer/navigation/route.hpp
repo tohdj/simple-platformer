@@ -1,3 +1,12 @@
+/**
+ * @file route.hpp
+ * @brief Search nodes, graph edges, and input replay sequences for low-level navigation routes.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <vector>
@@ -9,51 +18,69 @@
 
 namespace simple_platformer
 {
-    // The search's nodes and edges. They stay inside navigation; a caller receives a
-    // NavigationPath of waypoints instead.
-
-    // A cell and the surface the body rests on. ClimbSurface::None means the floor.
+    /**
+     * @brief A precise spatial coordinate bound with its structural surface anchoring state.
+     * @note ClimbSurface::None implies the entity is anchored to a standard horizontal walkable
+     * floor.
+     */
     struct RouteLocation
     {
-        Cell cell;
-        ClimbSurface surface = ClimbSurface::None;
+        Cell cell; /**< Grid coordinate positioning cells. */
+        ClimbSurface surface =
+            ClimbSurface::None; /**< Specific environmental plane attachment tracking. */
     };
 
+    /** @brief Evaluates two route locations for structural equality. */
     constexpr bool operator==(RouteLocation left, RouteLocation right)
     {
         return left.cell == right.cell && left.surface == right.surface;
     }
 
-    // One edge of a route: its destination, traversal, and any recorded inputs.
+    /**
+     * @brief Represents a single atomic edge movement traversing towards a destination node.
+     */
     struct RouteStep
     {
-        RouteLocation destination;
-        Traversal traversal = Traversal::Fly;
-        // Replay inputs for a jump, fall, or climb; empty for a walk or flight.
-        InputProgram inputs;
+        RouteLocation destination; /**< The target cell and surface node being navigated to. */
+        Traversal traversal =
+            Traversal::Fly;  /**< Operational physical movement technique utilized for transit. */
+        InputProgram inputs; /**< Frame-by-frame replay macro steps required for advanced jumps,
+                                drops, or climbs; empty during trivial walk loops. */
     };
 
-    // One move from a cell's sourceSurface to the step's destination. It may cross several
-    // cells. The search uses its cost; the route keeps its step.
+    /**
+     * @brief Graph connectivity description linking a source node context to an outgoing transition
+     * step.
+     * @note Multi-cell spans are compressed into individual directional paths containing unified
+     * metrics.
+     */
     struct RouteConnection
     {
-        RouteStep step;
-        // Cost must be greater than zero. All connections in one search must
-        // measure cost in the same unit, such as grid steps or simulation ticks.
-        int cost = 1;
-        // The surface in its cell that the edge leaves from.
-        ClimbSurface sourceSurface = ClimbSurface::None;
+        RouteStep step; /**< The edge transit behavior and target destination records. */
+        int cost = 1;   /**< Positive path evaluation penalty expressed uniformly across the search
+                           graph (e.g., cell steps or frames). */
+        ClimbSurface sourceSurface = ClimbSurface::None; /**< Originating structural plane axis
+                                                            within the source grid cell block. */
     };
 
-    // Where the route begins and the steps in travel order. No steps means the start is
-    // already the end.
+    /**
+     * @brief Complete linear sequence tracking path transitions from origin to final target
+     * destination.
+     * @note An empty step sequence denotes that the starting initialization target matches final
+     * completion parameters.
+     */
     struct Route
     {
-        RouteLocation start;
-        std::vector<RouteStep> steps;
+        RouteLocation start; /**< Node coordinates pinpointing route initialization parameters. */
+        std::vector<RouteStep> steps; /**< Ordered array containing consecutive node steps. */
     };
 
-    // The last step's destination, or the start of a route without steps.
+    /**
+     * @brief Safely evaluates the absolute termination node coordinates from a provided route
+     * trajectory.
+     * @return RouteLocation The final path waypoint node destination, or the baseline origin point
+     * if the vector is empty.
+     */
     inline RouteLocation endOf(const Route& route)
     {
         return route.steps.empty() ? route.start : route.steps.back().destination;

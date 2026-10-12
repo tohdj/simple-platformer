@@ -1,3 +1,13 @@
+/**
+ * @file flying_movement.hpp
+ * @brief Kinematic movement parameters, configuration validation, and integration routines for
+ * airborne physics.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include "simple_platformer/physics/body.hpp"
@@ -17,8 +27,7 @@ namespace simple_platformer
      */
     struct FlyingMovement
     {
-        /// Maximum movement speed measured in world pixels per second.
-        float speed = 60.0F;
+        float speed = 60.0F; /**< Maximum movement speed measured in world pixels per second. */
     };
 
     /**

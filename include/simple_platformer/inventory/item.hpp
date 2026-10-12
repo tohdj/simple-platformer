@@ -1,3 +1,12 @@
+/**
+ * @file item.hpp
+ * @brief Blueprint definitions, usage effect categories, and inventory allocation stacks for items.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <string>
@@ -6,7 +15,8 @@
 
 namespace simple_platformer
 {
-    /// Unique identifier token representing a specific type of item in the master database.
+    /** @brief Unique identifier token representing a specific type of item in the master database.
+     */
     using ItemId = int;
 
     /**
@@ -14,8 +24,9 @@ namespace simple_platformer
      */
     enum class ItemEffect
     {
-        None, /// No immediate script evaluation (e.g., pure crafting materials or quest tokens).
-        Heal  /// Restores an actor's current health pool points.
+        None, /**< No immediate script evaluation (e.g., pure crafting materials or quest tokens).
+               */
+        Heal  /**< Restores an actor's current health pool points. */
     };
 
     /**
@@ -23,20 +34,16 @@ namespace simple_platformer
      */
     struct ItemDefinition
     {
-        /// Unique database key identifying this specific item archetype.
-        ItemId id = 0;
-        /// User-facing display name of the item.
-        std::string name;
-        /// Visual sprite element used to draw the item inside inventory menus or UI slots.
-        Sprite icon;
-        /// Maximum capacity limit for how many instances of this item can occupy a single inventory
-        /// slot.
-        int maximumStack = 1;
-        /// The behavior type applied to the actor when this item is used.
-        ItemEffect effect = ItemEffect::None;
-        /// The numeric modifier scale associated with the applied effect (e.g., amount of HP
-        /// restored).
-        int effectAmount = 0;
+        ItemId id = 0;    /**< Unique database key identifying this specific item archetype. */
+        std::string name; /**< User-facing display name of the item. */
+        Sprite icon; /**< Visual sprite element used to draw the item inside inventory menus or UI
+                        slots. */
+        int maximumStack = 1; /**< Maximum capacity limit for how many instances of this item can
+                                 occupy a single inventory slot. */
+        ItemEffect effect =
+            ItemEffect::None; /**< The behavior type applied to the actor when this item is used. */
+        int effectAmount = 0; /**< The numeric modifier scale associated with the applied effect
+                                 (e.g., amount of HP restored). */
     };
 
     /**
@@ -44,10 +51,9 @@ namespace simple_platformer
      */
     struct ItemStack
     {
-        /// The database identifier of the item type stored in this allocation block.
-        ItemId item = 0;
-        /// The current count of items combined inside this specific slot.
-        int quantity = 1;
+        ItemId item =
+            0; /**< The database identifier of the item type stored in this allocation block. */
+        int quantity = 1; /**< The current count of items combined inside this specific slot. */
     };
 
     /**

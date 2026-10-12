@@ -1,3 +1,12 @@
+/**
+ * @file pursuer_state_machine.hpp
+ * @brief State machine transitions and frame updates for the hunting-focused Pursuer NPC archetype.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>

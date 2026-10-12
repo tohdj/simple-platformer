@@ -1,3 +1,13 @@
+/**
+ * @file combat.hpp
+ * @brief Component declarations, attack lifecycles, and tracking structures for weapon and contact
+ * combat.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>

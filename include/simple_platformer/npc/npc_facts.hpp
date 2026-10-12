@@ -1,3 +1,12 @@
+/**
+ * @file npc_facts.hpp
+ * @brief Telemetry aggregation and conditional fact parsing for NPC AI decision-making.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 namespace simple_platformer
@@ -7,37 +16,71 @@ namespace simple_platformer
     struct NpcBrain;
     struct NpcPerception;
 
-    // What transitions know this update: observations, remembered targets, movement,
-    // attacks, and elapsed times. Gathering these first keeps state decisions testable.
+    /**
+     * @brief A consolidated snapshot of environmental, sensory, and kinematic data used to evaluate
+     * AI state transitions.
+     * @note Isolating this state data into a clean structure keeps cognitive state decisions highly
+     * testable and decoupled.
+     */
     struct NpcFacts
     {
-        // A living target is remembered, seen or not.
-        bool targetKnown = false;
-        bool targetVisible = false;
-        // The target is visible and inside the bite's hitbox.
-        bool targetInBiteRange = false;
-        bool biteReady = false;
-        // The target is visible and the NPC has a ranged weapon.
-        bool targetInSights = false;
-        // The living target's last known feet are strictly within the senses'
-        // standoff distance of the NPC's current feet.
-        bool targetWithinStandoffDistance = false;
-        bool heardLanding = false;
-        // These two facts use the living target's current bounds, even without sight.
-        // Charger uses them to decide whether another charge is possible.
-        bool targetOnSameRun = false;
-        bool targetWithinNoticeDistance = false;
-        bool movementBlocked = false;
-        bool hasPatrol = false;
-        // Whether searching is enabled, and whether its configured duration has elapsed.
-        bool searches = false;
-        bool searchTimeUp = false;
-        float stateElapsed = 0.0F;
-        float targetLostElapsed = 0.0F;
+        bool targetKnown = false; /**< True if a living target is currently remembered, regardless
+                                     of immediate visibility. */
+        bool targetVisible =
+            false; /**< True if a direct, unobstructed line of sight to the target exists. */
+        bool targetInBiteRange =
+            false; /**< True if the target is visible and falls within the active overlapping bounds
+                      of the close-range bite hitbox. */
+        bool biteReady = false;      /**< True if the internal close-range melee action cooldown has
+                                        completely reset. */
+        bool targetInSights = false; /**< True if the target is visible and the NPC currently holds
+                                        a functional ranged weapon. */
+        bool targetWithinStandoffDistance =
+            false; /**< True if the distance to the target's last known footprint is strictly within
+                      the configured tactical standoff range. */
+        bool heardLanding = false; /**< True if an audio impact event signature was intercepted
+                                      during this sensory update. */
+        bool targetOnSameRun =
+            false; /**< True if the target occupies the same horizontal plane level (used by
+                      charging behavior even without direct sight). */
+        bool targetWithinNoticeDistance =
+            false; /**< True if the target's current absolute positioning falls within the general
+                      awareness threshold radius. */
+        bool movementBlocked = false; /**< True if the physical locomotion body is currently
+                                         arrested by a solid wall or obstacle block. */
+        bool hasPatrol = false; /**< True if a valid patrol route path container has been configured
+                                   for this character. */
+        bool searches = false;  /**< True if lookaround searching mechanics are enabled for this
+                                   specific behavioral archetype. */
+        bool searchTimeUp = false; /**< True if the active search timer interval has fully ticked
+                                      down and expired. */
+        float stateElapsed =
+            0.0F; /**< Total continuous duration in seconds spent within the active state loop. */
+        float targetLostElapsed = 0.0F; /**< Total continuous duration in seconds since a living
+                                           target was last verified visually. */
     };
 
-    // The facts for this NPC now. The target is its living remembered target, if any, and
-    // the state has been active for stateElapsed.
+    /**
+     * @brief Aggregates component registers and telemetry data to compile a unified facts profile
+     * for an NPC.
+     *
+     * Reads spatial grids, physical actor states, persistent cognitive brain variables, and
+     * transient sensory fields to compute a static boolean matrix guiding finite state machine
+     * evaluations.
+     *
+     * @param map The static environment geometry grid layout context used to calculate proximity
+     * blocks.
+     * @param actor The underlying physical actor entity data structure to evaluate.
+     * @param brain Cognitive state tracking internal timers, chosen tactics, and historical target
+     * footprints.
+     * @param perception Transient visual and acoustic metrics captured during this frame's sensory
+     * update.
+     * @param target A pointer to the live target entity being monitored, or nullptr if out of
+     * sensory range.
+     * @param stateElapsed Total continuous time in seconds spent executing the current AI state.
+     * @return NpcFacts A populated, immutable structure containing the active telemetry facts
+     * matrix.
+     */
     NpcFacts gatherNpcFacts(
         const TileMap& map,
         const Actor& actor,

@@ -1,3 +1,13 @@
+/**
+ * @file inventory.hpp
+ * @brief Dynamic inventory container class managing item slots, capacity limits, and transactional
+ * modifications.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -13,12 +23,10 @@ namespace simple_platformer
      */
     struct AddItemResult
     {
-        /// Total number of item units successfully placed into the inventory storage.
-        int added = 0;
-
-        /// Number of item units that could not fit because storage capacity was completely
-        /// exhausted.
-        int remaining = 0;
+        int added =
+            0; /**< Total number of item units successfully placed into the inventory storage. */
+        int remaining = 0; /**< Number of item units that could not fit because storage capacity was
+                              completely exhausted. */
     };
 
     /**
@@ -94,8 +102,8 @@ namespace simple_platformer
         bool removeFromSlot(std::size_t slot, int quantity);
 
     private:
-        /// The contiguous container backing block holding item tracking slots.
-        /// A `std::nullopt` entry represents an empty, available slot.
-        std::vector<std::optional<ItemStack>> slotStorage;
+        std::vector<std::optional<ItemStack>>
+            slotStorage; /**< The contiguous container backing block holding item tracking slots. A
+                            `std::nullopt` entry represents an empty, available slot. */
     };
 }

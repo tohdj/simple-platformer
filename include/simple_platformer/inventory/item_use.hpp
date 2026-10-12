@@ -1,3 +1,12 @@
+/**
+ * @file use_item.hpp
+ * @brief Logic and invocation handlers for triggering item usage from an actor's inventory slot.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -18,7 +27,7 @@ namespace simple_platformer
      * @param world The active game world context containing the actor and items data.
      * @param actor The unique identifier of the entity attempting to use the item.
      * @param slot The zero-based array index of the inventory container slot to trigger.
-     * @return true if the item was successfully used or consumed, false if the slot was empty,
+     * @return true if the item was successfully used or consumed; false if the slot was empty,
      *         the action was on cooldown, or the actor was invalid.
      */
     bool useItem(World& world, ActorId actor, std::size_t slot);

@@ -1,3 +1,13 @@
+/**
+ * @file input_state.hpp
+ * @brief Enums, state snapshot data structures, and edge-trigger tracking buffers for digital game
+ * inputs.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <array>
@@ -18,7 +28,7 @@ namespace simple_platformer
         Down,
         Jump,
         PrimaryAttack,
-        Count /// Helper definition tracking the total number of enum actions.
+        Count /**< Helper definition tracking the total number of enum actions. */
     };
 
     /**
@@ -30,12 +40,10 @@ namespace simple_platformer
      */
     enum class ClimbGrip
     {
-        /// Maintain the existing grip state without modifications.
-        Keep,
-        /// Latch onto a contacted wall or ladder, or continue holding the current surface.
-        Hold,
-        /// Intentionally let go of the currently scaled wall or ladder surface.
-        Release
+        Keep,   /**< Maintain the existing grip state without modifications. */
+        Hold,   /**< Latch onto a contacted wall or ladder, or continue holding the current surface.
+                 */
+        Release /**< Intentionally let go of the currently scaled wall or ladder surface. */
     };
 
     /**
@@ -47,25 +55,23 @@ namespace simple_platformer
      */
     struct InputIntentions
     {
-        /// 2D movement navigation request vector (normalized values ranging between -1.0 and 1.0).
-        glm::vec2 direction = {0.0F, 0.0F};
-        /// 2D target aim pointing vector for targeting projectile paths.
-        glm::vec2 aimDirection = {0.0F, 0.0F};
-        /// Flag indicating the jump action button transitioned to a down state during this frame
-        /// window.
-        bool jumpPressed = false;
-        /// Flag tracking if the jump button remains continuously held (useful for variable jump
-        /// heights).
-        bool jumpHeld = false;
-        /// Flag indicating the primary action attack command transitioned to down during this frame
-        /// window.
-        bool primaryAttackPressed = false;
-        /// Context flag dictating changes to ladder or wall scaling logic this tick.
-        ClimbGrip climbGrip = ClimbGrip::Keep;
-        /// True if AI or input scripts request stopping short of edge drop-offs while walking.
-        bool avoidLedges = false;
-        /// Flag enabling or disabling the continuous contact-damage checking process if supported.
-        bool contactDamage = false;
+        glm::vec2 direction = {0.0F, 0.0F}; /**< 2D movement navigation request vector (normalized
+                                               values ranging between -1.0 and 1.0). */
+        glm::vec2 aimDirection = {
+            0.0F,
+            0.0F}; /**< 2D target aim pointing vector for targeting projectile paths. */
+        bool jumpPressed = false; /**< Flag indicating the jump action button transitioned to a down
+                                     state during this frame window. */
+        bool jumpHeld = false;    /**< Flag tracking if the jump button remains continuously held
+                                     (useful for variable jump heights). */
+        bool primaryAttackPressed = false; /**< Flag indicating the primary action attack command
+                                              transitioned to down during this frame window. */
+        ClimbGrip climbGrip = ClimbGrip::Keep; /**< Context flag dictating changes to ladder or wall
+                                                  scaling logic this tick. */
+        bool avoidLedges = false;   /**< True if AI or input scripts request stopping short of edge
+                                       drop-offs while walking. */
+        bool contactDamage = false; /**< Flag enabling or disabling the continuous contact-damage
+                                       checking process if supported. */
     };
 
     /**
@@ -119,14 +125,13 @@ namespace simple_platformer
         InputIntentions consumeIntentions();
 
     private:
-        /// Internal array count mapping raw storage limits.
-        static constexpr std::size_t ButtonCount = static_cast<std::size_t>(InputButton::Count);
+        static constexpr std::size_t ButtonCount = static_cast<std::size_t>(
+            InputButton::Count); /**< Internal array count mapping raw storage limits. */
 
-        /// Tracks continuous hold actions down per slot.
-        std::array<bool, ButtonCount> held{};
-        /// Edge-trigger array capturing low-to-high state updates until consumed.
-        std::array<bool, ButtonCount> pressed{};
-        /// Edge-trigger array capturing high-to-low state updates until consumed.
-        std::array<bool, ButtonCount> released{};
+        std::array<bool, ButtonCount> held{}; /**< Tracks continuous hold actions down per slot. */
+        std::array<bool, ButtonCount> pressed{}; /**< Edge-trigger array capturing low-to-high state
+                                                    updates until consumed. */
+        std::array<bool, ButtonCount> released{}; /**< Edge-trigger array capturing high-to-low
+                                                     state updates until consumed. */
     };
 }

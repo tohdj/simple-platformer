@@ -1,3 +1,13 @@
+/**
+ * @file route_search.hpp
+ * @brief Graph search algorithms and functional descriptors for calculating low-level actor routes
+ * using A*.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <functional>
@@ -9,25 +19,52 @@
 
 namespace simple_platformer
 {
-    // Returns the connections leaving a location. Each is one step to a place nearby,
-    // with its cost and the inputs that make the step.
+    /**
+     * @brief Callback descriptor that generates all valid outgoing graph edges from a source
+     * location.
+     *
+     * Each returned element defines an immediate neighborhood transition along with its traversal
+     * costs and frame input recording payloads.
+     */
     using ConnectionFunction = std::function<std::vector<RouteConnection>(RouteLocation location)>;
-    // Guesses the cost from a cell to the goal cell. The guess must never be more than
-    // the real cost, and never below zero.
+
+    /**
+     * @brief Callback descriptor evaluating the lower-bound cost approximation between two grid
+     * cells.
+     * @note To maintain mathematical admissibility for A*, the returned value must be non-negative
+     * and must never overestimate the actual remaining path cost.
+     */
     using HeuristicFunction = std::function<int(Cell cell, Cell goal)>;
 
-    // What a search ends with. A finished search has a route to the cheapest location in
-    // the goal cell. If it could not reach that cell, there is no route.
+    /**
+     * @brief Encapsulates the final outcome state returned by a graph search operation.
+     */
     struct RouteSearchResult
     {
-        std::optional<Route> route;
+        std::optional<Route> route; /**< The optimized, lowest-cost pathway to the goal node, or
+                                       std::nullopt if no solution exists. */
     };
 
-    // Finds the cheapest route from start to any location in the goal cell, using A*.
-    // A location is a cell and a surface, so a cell's floor, walls and ceiling are
-    // separate places. A search without climbing only uses floors. The start and every
-    // connection's destination must be on the grid, but the goal need not be. A
-    // heuristic that always guesses zero turns A* into Dijkstra's search.
+    /**
+     * @brief Computes the lowest-cost route from an origin node to any valid surface node inside
+     * the target goal cell using A*.
+     *
+     * Because node tracking binds both raw cell indexes and structural alignment matrices together,
+     * a single grid block's floor, wall axes, and ceilings are evaluated as isolated, unique
+     * positions. Configurations lacking climbing features naturally prune evaluations down to
+     * standard horizontal surfaces.
+     *
+     * @note Supplying a heuristic functor that uniformly defaults to zero shifts this routine's
+     * execution behavior into Dijkstra's algorithm.
+     * @param start The initial node coordinates and anchor surface initializing the search context.
+     * @param goal The target grid block bounding box target criteria.
+     * @param grid Structural boundaries defining the size constraints of the operational grid map.
+     * @param connections Functional evaluator supplying active neighbor expansion edges.
+     * @param heuristic Approximator function computing node weight estimations towards the target
+     * destination cell.
+     * @return RouteSearchResult Result payload mapping the calculated transition node timeline
+     * block.
+     */
     RouteSearchResult findLowestCostRoute(
         RouteLocation start,
         Cell goal,

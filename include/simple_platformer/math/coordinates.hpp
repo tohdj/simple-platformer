@@ -1,3 +1,13 @@
+/**
+ * @file coordinates.hpp
+ * @brief Viewport dimensions, 2D grid cell structures, cell ranges, and pixel-to-grid coordinate
+ * transformations.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -6,15 +16,16 @@
 
 namespace simple_platformer
 {
-    /// Target internal width of the screen viewport in pixels.
-    /// World coordinates scale horizontally with X increasing towards the right.
+    /** @brief Target internal width of the screen viewport in pixels. World coordinates scale
+     * horizontally with X increasing towards the right. */
     constexpr int InternalWidth = 320;
 
-    /// Target internal height of the screen viewport in pixels.
-    /// World coordinates scale vertically with Y increasing downwards.
+    /** @brief Target internal height of the screen viewport in pixels. World coordinates scale
+     * vertically with Y increasing downwards. */
     constexpr int InternalHeight = 180;
 
-    /// Complete 2D rendering viewport boundaries expressed as floating-point vector dimensions.
+    /** @brief Complete 2D rendering viewport boundaries expressed as floating-point vector
+     * dimensions. */
     constexpr glm::vec2 InternalViewportSize = {
         static_cast<float>(InternalWidth),
         static_cast<float>(InternalHeight)};
@@ -24,10 +35,8 @@ namespace simple_platformer
      */
     struct Cell
     {
-        /// Horizontal coordinate index (column position from left-to-right).
-        int x = 0;
-        /// Vertical coordinate index (row position from top-to-bottom).
-        int y = 0;
+        int x = 0; /**< Horizontal coordinate index (column position from left-to-right). */
+        int y = 0; /**< Vertical coordinate index (row position from top-to-bottom). */
     };
 
     /**
@@ -53,7 +62,7 @@ namespace simple_platformer
     }
 
     /**
-     * @brief Custom hashing functor to allow Using a `Cell` as a key in unordered containers.
+     * @brief Custom hashing functor to allow using a `Cell` as a key in unordered containers.
      *
      * Enables using standard lookup maps like `std::unordered_map<Cell, Entity, CellHash>`.
      */
@@ -72,11 +81,8 @@ namespace simple_platformer
      */
     struct GridSize
     {
-        /// Number of columns spanning across the horizontal axis.
-        int width = 0;
-
-        /// Number of rows spanning down the vertical axis.
-        int height = 0;
+        int width = 0;  /**< Number of columns spanning across the horizontal axis. */
+        int height = 0; /**< Number of rows spanning down the vertical axis. */
     };
 
     /**
@@ -98,32 +104,53 @@ namespace simple_platformer
      */
     struct CellRange
     {
-        /// The starting boundary cell (typically top-left).
-        Cell first;
-
-        /// The ending boundary cell (typically bottom-right). This boundary is inclusive.
-        Cell last;
+        Cell first; /**< The starting boundary cell (typically top-left). */
+        Cell last;  /**< The ending boundary cell (typically bottom-right). This boundary is
+                       inclusive. */
     };
 
-
+    /** @brief Checks if the designated grid cell falls completely within the boundary limits of the
+     * cell range. */
     bool contains(const CellRange& range, Cell cell);
-    // The smallest range holding both.
+
+    /** @brief Computes the smallest possible enclosing cell range that aggregates both parameters.
+     */
     CellRange unionOf(const CellRange& left, const CellRange& right);
 
-    // In world pixels: tolerance used for tile-edge tests. Feet on a floor belong to the
-    // cell above it; box edges do not include the cell beyond them. Map-edge contact uses
-    // the same tolerance.
+    /**
+     * @brief Floating-point margin of tolerance in world pixels used for precise tile-edge
+     * collision tests.
+     * @note Feet resting exactly on a floor belong to the cell above it; bounding box edges do not
+     * include the cell beyond them.
+     */
     constexpr float EdgeTolerance = 0.001F;
 
-    // The cell containing the point. A point on a tile edge belongs to the cell to its right
-    // or below, and points left of or above the map give negative cells.
+    /**
+     * @brief Resolves the grid cell context enclosing a given absolute world pixel coordinate
+     * point.
+     * @note A point falling exactly on a tile border edge resolves to the cell to its right or
+     * below it.
+     * @param tileSize The length of one square tile cell in world pixels.
+     * @param worldPosition Global pixel coordinates.
+     * @return Cell Enclosing cell index location values.
+     */
     Cell cellAt(int tileSize, glm::vec2 worldPosition);
-    // The cell's top-left corner.
+
+    /** @brief Computes absolute world pixel coordinates pointing to the top-left corner vertex of a
+     * cell. */
     glm::vec2 cellCorner(int tileSize, Cell cell);
 
-    // The cell something with these feet stands in. Feet exactly on a tile's top edge
-    // belong to the cell above it, the one the actor occupies.
+    /**
+     * @brief Resolves the cell index something stands in based on its footprint coordinates.
+     * @note Coordinates falling exactly on a tile's top border line map to the cell block directly
+     * above it.
+     * @param tileSize The length of one square tile cell in world pixels.
+     * @param feet Baseline pixel footprint position.
+     * @return Cell Enclosing cell coordinate index.
+     */
     Cell cellAtFeet(int tileSize, glm::vec2 feet);
-    // The feet of something standing in the cell: the middle of the cell's bottom edge.
+
+    /** @brief Computes baseline world pixel coordinates matching the horizontal midpoint center of
+     * a cell's bottom edge. */
     glm::vec2 feetInCell(int tileSize, Cell cell);
 }

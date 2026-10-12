@@ -1,3 +1,13 @@
+/**
+ * @file fixed_step.hpp
+ * @brief Fixed-timestep loop engine accumulator for decoupling deterministic simulation steps from
+ * variable frame rates.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstddef>
@@ -5,11 +15,11 @@
 
 namespace simple_platformer
 {
-    /// The standard target simulation timestep in seconds (matches a 60Hz tick rate).
+    /** @brief The standard target simulation timestep in seconds (matches a 60Hz tick rate). */
     constexpr double FixedDeltaSeconds = 1.0 / 60.0;
 
-    /// The maximum real-time duration allowed per frame to prevent a "spiral of death"
-    /// cascade when performance hitches occur.
+    /** @brief The maximum real-time duration allowed per frame to prevent a "spiral of death"
+     * cascade when performance hitches occur. */
     constexpr double MaximumFrameSeconds = 0.25;
 
     /**
@@ -17,12 +27,11 @@ namespace simple_platformer
      */
     struct FixedStepResult
     {
-        /// Total number of fixed simulation steps evaluated during this frame call.
-        std::size_t updates = 0;
-
-        /// Blending factor scalar (ranging from 0.0 to 1.0) tracking the remaining time,
-        /// used to smoothly interpolate rendering transforms between physics frames.
-        double interpolation = 0.0;
+        std::size_t updates =
+            0; /**< Total number of fixed simulation steps evaluated during this frame call. */
+        double interpolation =
+            0.0; /**< Blending factor scalar (ranging from 0.0 to 1.0) tracking the remaining time,
+                    used to smoothly interpolate rendering transforms between physics frames. */
     };
 
     /**
@@ -66,20 +75,18 @@ namespace simple_platformer
          */
         void reset();
 
-        /// Read-only accessor for the targeted physics timestep duration in seconds.
+        /** @brief Read-only accessor for the targeted physics timestep duration in seconds. */
         double stepSeconds() const;
 
-        /// Read-only accessor for the remaining fractional time values currently buffered in the
-        /// accumulator.
+        /** @brief Read-only accessor for the remaining fractional time values currently buffered in
+         * the accumulator. */
         double pendingSeconds() const;
 
     private:
-        /// The immutable duration window size assigned per step.
-        double step;
-        /// The safety ceiling bound allowed for incoming real frame durations.
-        double maximumFrame;
-        /// Internal buffer accumulating fractions of frame time until they cross the tick
-        /// threshold.
-        double accumulator = 0.0;
+        double step;              /**< The immutable duration window size assigned per step. */
+        double maximumFrame;      /**< The safety ceiling bound allowed for incoming real frame
+                                     durations. */
+        double accumulator = 0.0; /**< Internal buffer accumulating fractions of frame time until
+                                     they cross the tick threshold. */
     };
 }

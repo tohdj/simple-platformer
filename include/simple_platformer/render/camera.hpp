@@ -1,3 +1,13 @@
+/**
+ * @file camera.hpp
+ * @brief Viewport coordinates, smooth tracking controllers, and coordinate space conversion
+ * helpers.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <glm/vec2.hpp>
@@ -14,10 +24,11 @@ namespace simple_platformer
      */
     struct Camera
     {
-        /// Top-left position of the viewport in world-space coordinates (pixels).
-        glm::vec2 position = {0.0F, 0.0F};
-        /// The width and height dimensions of the visible viewport screen area.
-        glm::vec2 viewportSize = InternalViewportSize;
+        glm::vec2 position = {
+            0.0F,
+            0.0F}; /**< Top-left position of the viewport in world-space coordinates (pixels). */
+        glm::vec2 viewportSize = InternalViewportSize; /**< The width and height dimensions of the
+                                                          visible viewport screen area. */
     };
 
     /**
@@ -33,10 +44,9 @@ namespace simple_platformer
          */
         CameraController(Camera initialCamera, glm::vec2 initialDeadZoneSize);
 
-        /// The managed camera instance holding viewport spatial states.
-        Camera camera;
-        /// Width and height thresholds within the screen center defining the passive target window.
-        glm::vec2 deadZoneSize;
+        Camera camera;          /**< The managed camera instance holding viewport spatial states. */
+        glm::vec2 deadZoneSize; /**< Width and height thresholds within the screen center defining
+                                   the passive target window. */
     };
 
     /**

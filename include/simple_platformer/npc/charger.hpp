@@ -1,3 +1,11 @@
+/**
+ * @file charger.hpp
+ * @brief Manage the FSM for charger NPC
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
 #pragma once
 
 #include <optional>
