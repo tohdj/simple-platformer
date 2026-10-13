@@ -1,3 +1,13 @@
+/**
+ * @file        actor.hpp
+ * @brief       Defines the core Actor composition structure and its associated state components
+ * (Health, LifeState).
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>

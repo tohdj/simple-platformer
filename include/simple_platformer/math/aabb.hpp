@@ -1,3 +1,12 @@
+/**
+ * @file aabb.hpp
+ * @brief Axis-aligned bounding box (AABB) definitions and spatial intersection utilities.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <glm/vec2.hpp>

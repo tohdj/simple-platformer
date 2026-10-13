@@ -1,3 +1,13 @@
+/**
+ * @file animation.hpp
+ * @brief Component declarations, playback tracking, and state machines for actor sprite
+ * animations.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */                                                                                                \
+
 #pragma once
 
 #include <vector>

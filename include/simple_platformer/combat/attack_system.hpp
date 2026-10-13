@@ -1,3 +1,13 @@
+/**
+ * @file attack_system.hpp
+ * @brief Logic execution systems tracking physical strikes, damage calculation, and active
+ * hitboxes.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include "simple_platformer/combat/combat.hpp"

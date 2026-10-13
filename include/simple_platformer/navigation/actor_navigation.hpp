@@ -1,3 +1,12 @@
+/**
+ * @file path_finding.hpp
+ * @brief Spatial path-finding algorithms, traversal profile generation, and navigation setup
+ * routines.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */                                                                                                \
 #pragma once
 
 #include <optional>

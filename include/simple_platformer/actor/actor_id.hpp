@@ -1,3 +1,12 @@
+/**
+ * @file        actor_id.hpp
+ * @brief       Declares the ActorId safety wrapper and its associated validation and comparison
+ * operators.
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 Simple Platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstdint>

@@ -1,3 +1,12 @@
+/**
+ * @file        actor_lifecycle.hpp
+ * @brief       Declares functions and constants responsible for handling damage processing, death
+ * timers, and lifecycle updates.
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 Simple Platformer. All rights reserved.
+ */
+
 #pragma once
 
 namespace simple_platformer

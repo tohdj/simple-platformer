@@ -1,3 +1,12 @@
+/**
+ * @file        actor_system.hpp
+ * @brief       Declares environmental update functions responsible for moving actors and resolving
+ * geometric tile collisions.
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 Simple Platformer. All rights reserved.
+ */
+
 #pragma once
 
 namespace simple_platformer

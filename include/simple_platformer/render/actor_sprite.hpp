@@ -1,3 +1,13 @@
+/**
+ * @file actor_sprite.hpp
+ * @brief Calculations and structures for anchoring, rotating, and mirroring actor sprites against
+ * surfaces.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include "simple_platformer/math/aabb.hpp"
