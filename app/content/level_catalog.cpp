@@ -22,8 +22,11 @@ namespace simple_platformer
 {
     namespace
     {
+        // Alias naming short-token reference mapping to simplify nlohmann json object usage
         using Json = nlohmann::json;
 
+        // Extracts an integer key parameter token and verifies that its value is strictly greater
+        // than zero
         int jsonPositiveInteger(
             const Json& value,
             std::string_view sourceName,
@@ -37,16 +40,23 @@ namespace simple_platformer
             return result;
         }
 
+        // Sanitizes input file paths strings to mandate relative tracking vectors and prevent
+        // illegal directory traversal attacks
         std::filesystem::path jsonRelativeFile(
             const Json& value,
             std::string_view sourceName,
             std::string_view path)
         {
             const std::filesystem::path file = jsonText(value, sourceName, path);
+
+            // Enforce basic relative framework security rules bounds early
             if (file.empty() || file.is_absolute())
             {
                 failJson(sourceName, path, "file must be a non-empty relative path");
             }
+
+            // Sandbox protection: Parse directory segments explicitly to block parent directory
+            // escape tokens ("..")
             for (const std::filesystem::path& part : file)
             {
                 if (part == "..")
@@ -57,18 +67,25 @@ namespace simple_platformer
             return file;
         }
 
+        // Parses, structure-validates, and indexes complete level catalog arrays hierarchies out of
+        // the schema root
         LevelCatalog jsonLevelCatalog(
             const Json& root,
             std::string_view sourceName,
             const std::filesystem::path& levelDirectory)
         {
+            // Enforce explicit top-level block key rules mappings
             checkJsonFields(root, {"startLevel", "cameraDeadZone", "levels"}, sourceName, "root");
+
             LevelCatalog result;
             result.startLevel = jsonPositiveInteger(
                 requiredJsonMember(root, "startLevel", sourceName, "root"),
                 sourceName,
                 "startLevel");
             result.cameraDeadZone = readVector(root, "cameraDeadZone", sourceName, "root");
+
+            // Validate that camera dead-zone boundary configurations box fits securely inside
+            // active rendering frame sizes
             if (!isFinitePositive(result.cameraDeadZone) ||
                 result.cameraDeadZone.x > InternalViewportSize.x ||
                 result.cameraDeadZone.y > InternalViewportSize.y)
@@ -87,12 +104,18 @@ namespace simple_platformer
                 failJson(sourceName, "levels", "expected at least one level");
             }
 
-            result.levels.reserve(levels.size());
+            result.levels.reserve(
+                levels
+                    .size()); // Pre-allocate vector nodes storage to optimize array assembly passes
+
+            // --- LOOP 1: PARSE CHRONOLOGICAL SCENE LEVEL ENTRIES AND CHECK SYSTEM UNIQUE INTEGRITY
+            // ---
             for (std::size_t index = 0; index < levels.size(); ++index)
             {
                 const Json& value = levels[index];
                 const std::string path = indexPath("levels", index);
                 checkJsonFields(value, {"number", "file"}, sourceName, path);
+
                 LevelCatalogEntry entry;
                 entry.number = jsonPositiveInteger(
                     requiredJsonMember(value, "number", sourceName, path),
@@ -103,11 +126,14 @@ namespace simple_platformer
                     sourceName,
                     fieldPath(path, "file"));
 
+                // Prevent key identifier collisions by validating the level index entry number
+                // hasn't been listed previously
                 const auto duplicateNumber = std::find_if(
                     result.levels.begin(),
                     result.levels.end(),
                     [&entry](const LevelCatalogEntry& existing)
                     { return existing.number == entry.number; });
+
                 if (duplicateNumber != result.levels.end())
                 {
                     failJson(
@@ -116,11 +142,13 @@ namespace simple_platformer
                 result.levels.push_back(std::move(entry));
             }
 
+            // --- STAGE 2: VALIDATE THE GAME LOOP INITIAL STARTING ENTRY HOOKS ---
             const auto start = std::find_if(
                 result.levels.begin(),
                 result.levels.end(),
                 [&result](const LevelCatalogEntry& entry)
                 { return entry.number == result.startLevel; });
+
             if (start == result.levels.end())
             {
                 failJson(sourceName, "startLevel", "level is not listed in the catalog");
@@ -129,39 +157,56 @@ namespace simple_platformer
         }
     }
 
+    // Parses raw text buffer streams into an engine-ready LevelCatalog blueprint structure
     LevelCatalog parseLevelCatalog(
         std::string_view text,
         std::string_view sourceName,
         const std::filesystem::path& levelDirectory)
     {
+        // Initialize the low-level content root tokenizer layer using our abstract parsing engine
         const auto root = parseContentRoot(text, sourceName);
         try
         {
+            // Hand off the root structural node to the core catalog generation loop compiler
             return jsonLevelCatalog(root, sourceName, levelDirectory);
         }
-        // Add the filename to JSON-library errors, as well as our own validation errors.
+        // Intercept native structural framework errors to augment them with local filename metadata
         catch (const Json::exception& exception)
         {
+            // Format a complete path diagnostic error log pass to simplify target script bug fixes
             failJson(sourceName, {}, std::string("invalid JSON: ") + exception.what());
         }
     }
 
+    // Handles drive reading IO interactions and extracts parent directories to anchor relative
+    // files paths
     LevelCatalog loadLevelCatalog(const std::filesystem::path& path)
     {
+        // Pass file content strings down into parsing handlers, mapping the file's folder root as
+        // the level directory base
         return parseLevelCatalog(loadContentText(path), path.string(), path.parent_path());
     }
 
+    // Resolves an absolute operating system file path for a requested numerical scene target index
     std::filesystem::path levelPath(const LevelCatalog& catalog, int levelNumber)
     {
+        // 1. Traverse catalog listings to locate an existing entry matching the designated sequence
+        // index key
         const auto found = std::find_if(
             catalog.levels.begin(),
             catalog.levels.end(),
             [levelNumber](const LevelCatalogEntry& entry) { return entry.number == levelNumber; });
+
+        // 2. Safeguard logic paths against runtime scene requests index boundary overflows
         if (found == catalog.levels.end())
         {
             throw std::invalid_argument(
                 "Level " + std::to_string(levelNumber) + " is not in the catalog");
         }
+
+        // Combine the stored base directory parent root with the matching relative level script
+        // file name location Example Output Result: "assets/levels/" / "level_01.json" ->
+        // "assets/levels/level_01.json"
         return catalog.levelDirectory / found->relativeFile;
     }
 }
