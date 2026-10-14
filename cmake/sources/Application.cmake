@@ -1,37 +1,23 @@
 # Keep this file source-only so clang-tidy can scope manifest changes safely.
+
+# 1. Automatically grab all .cpp files in the app folder and its subdirectories
+file(
+    GLOB_RECURSE PLATFORMER_SOURCES
+    CONFIGURE_DEPENDS
+    "${PROJECT_SOURCE_DIR}/app/*.cpp"
+    "${PROJECT_SOURCE_DIR}/app/debug/*.cpp"
+    "${PROJECT_SOURCE_DIR}/app/content/*.cpp"
+    "${PROJECT_SOURCE_DIR}/app/game/*.cpp"
+    "${PROJECT_SOURCE_DIR}/app/graphics/*.cpp"
+    "${PROJECT_SOURCE_DIR}/app/ui/*.cpp"
+)
+
+# 2. Tell Visual Studio to strip the base path and mirror the disk layout
+source_group(TREE "${PROJECT_SOURCE_DIR}/app" PREFIX "app" FILES ${PLATFORMER_SOURCES})
+
+# 3. Add the dynamically discovered files to your target
 target_sources(
     simple_platformer
     PRIVATE
-    ${PROJECT_SOURCE_DIR}/app/application.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/debug_draw.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/debug_overlay.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/debug_overlay_ui.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/debug_tools.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/navigation_debug.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/navigation_debug_ui.cpp
-    ${PROJECT_SOURCE_DIR}/app/debug/npc_names.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/actor_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/actor_definition.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/animation_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/content_diagnostics.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/content_json.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/content_validation.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/exit_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/game_catalogs.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/hud_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/item_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/level_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/level_data.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/pickup_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/content/tile_catalog.cpp
-    ${PROJECT_SOURCE_DIR}/app/game/game.cpp
-    ${PROJECT_SOURCE_DIR}/app/game/level_composition.cpp
-    ${PROJECT_SOURCE_DIR}/app/graphics/display_viewport.cpp
-    ${PROJECT_SOURCE_DIR}/app/graphics/game_window.cpp
-    ${PROJECT_SOURCE_DIR}/app/graphics/imgui_session.cpp
-    ${PROJECT_SOURCE_DIR}/app/graphics/sprite_renderer.cpp
-    ${PROJECT_SOURCE_DIR}/app/main.cpp
-    ${PROJECT_SOURCE_DIR}/app/ui/hud_draw.cpp
-    ${PROJECT_SOURCE_DIR}/app/ui/interface_ui.cpp
-    ${PROJECT_SOURCE_DIR}/app/ui/inventory_layout.cpp
+    ${PLATFORMER_SOURCES}
 )

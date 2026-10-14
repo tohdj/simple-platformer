@@ -1,58 +1,39 @@
 # Keep this file source-only so clang-tidy can scope manifest changes safely.
+
+# 1. Automatically grab all .cpp files in the app folder and its subdirectories
+file(
+    GLOB_RECURSE PLATFORMER_CORE_SOURCES
+    CONFIGURE_DEPENDS
+    "${PROJECT_SOURCE_DIR}/src/actor/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/combat/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/input/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/inventory/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/math/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/movement/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/navigation/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/npc/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/physics/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/render/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/timing/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/world/*.cpp"
+)
+
+# 2. Tell Visual Studio to strip the base path and mirror the disk layout
+source_group(TREE "${PROJECT_SOURCE_DIR}/src" PREFIX "src" FILES ${PLATFORMER_CORE_SOURCES})
+
+# 3. Add the dynamically discovered files to your target
 target_sources(
     simple_platformer_core
     PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/actor/actor_lifecycle.cpp
-    ${PROJECT_SOURCE_DIR}/src/actor/actor_id.cpp
-    ${PROJECT_SOURCE_DIR}/src/actor/actor_system.cpp
-    ${PROJECT_SOURCE_DIR}/src/actor/actor_validation.cpp
-    ${PROJECT_SOURCE_DIR}/src/combat/attack_system.cpp
-    ${PROJECT_SOURCE_DIR}/src/combat/combat.cpp
-    ${PROJECT_SOURCE_DIR}/src/combat/projectile_system.cpp
-    ${PROJECT_SOURCE_DIR}/src/input/input_state.cpp
-    ${PROJECT_SOURCE_DIR}/src/input/input_program.cpp
-    ${PROJECT_SOURCE_DIR}/src/inventory/inventory.cpp
-    ${PROJECT_SOURCE_DIR}/src/inventory/item.cpp
-    ${PROJECT_SOURCE_DIR}/src/inventory/item_use.cpp
-    ${PROJECT_SOURCE_DIR}/src/math/aabb.cpp
-    ${PROJECT_SOURCE_DIR}/src/math/coordinates.cpp
-    ${PROJECT_SOURCE_DIR}/src/math/validation.cpp
-    ${PROJECT_SOURCE_DIR}/src/movement/flying_movement.cpp
-    ${PROJECT_SOURCE_DIR}/src/movement/platformer_movement.cpp
-    ${PROJECT_SOURCE_DIR}/src/movement/surface_climb.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/actor_navigation.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/path_follower.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/platformer_cells.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/platformer_connection_table.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/platformer_connections.cpp
-    ${PROJECT_SOURCE_DIR}/src/navigation/route_search.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/charger.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/coward.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/keep_distance.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/pursuer.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/npc_behaviour.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/npc_senses.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/npc_system.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/npc_facts.cpp
-    ${PROJECT_SOURCE_DIR}/src/npc/npc_navigation.cpp
-    ${PROJECT_SOURCE_DIR}/src/physics/body.cpp
-    ${PROJECT_SOURCE_DIR}/src/physics/segment_cast.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/actor_sprite.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/animation.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/animation_system.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/cover_fade.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/presentation.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/camera.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/render_scene.cpp
-    ${PROJECT_SOURCE_DIR}/src/render/sprite.cpp
-    ${PROJECT_SOURCE_DIR}/src/timing/fixed_step.cpp
-    ${PROJECT_SOURCE_DIR}/src/timing/stopwatch.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/tile_map.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/world.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/level_exit.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/level_validation.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/pickup.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/sight.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/world_requests.cpp
-    ${PROJECT_SOURCE_DIR}/src/world/world_simulation.cpp
+    ${PLATFORMER_CORE_SOURCES}
+)
+
+
+
+
+
+# Keep this file source-only so clang-tidy can scope manifest changes safely.
+target_sources(
+    simple_platformer_core
+    PRIVATE
 )

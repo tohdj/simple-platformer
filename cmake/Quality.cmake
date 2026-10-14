@@ -100,7 +100,15 @@ else()
     message(STATUS "clang-tidy not found; tidy target is unavailable")
 endif()
 
+# Set target file properties
 set_source_files_properties(${PROJECT_PUBLIC_HEADERS} PROPERTIES LANGUAGE CXX)
+
+# Automatically mirror the disk layout inside Visual Studio Solution Explorer filters
+source_group(
+    TREE "${PROJECT_SOURCE_DIR}" 
+    FILES ${PROJECT_PUBLIC_HEADERS}
+)
+
 add_library(header_self_containment OBJECT EXCLUDE_FROM_ALL ${PROJECT_PUBLIC_HEADERS})
 target_compile_features(header_self_containment PRIVATE cxx_std_17)
 target_link_libraries(header_self_containment PRIVATE simple_platformer_core)
