@@ -1,3 +1,13 @@
+/**
+ * @file        debug_tools.hpp
+ * @brief       Declares high-level diagnostic layout drawing functions for orchestrating
+ *              world overlay layers and text status windows.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <optional>

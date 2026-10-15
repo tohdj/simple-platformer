@@ -13,38 +13,20 @@
 
 namespace simple_platformer
 {
-    /**
-     * @brief A unique identifier for actors within the game world.
-     *
-     * Wraps a 32-bit unsigned integer to provide type safety, preventing
-     * accidental mixing of actor IDs with other numeric identifiers.
-     */
+    // A unique identifier for actors within the game world.
+    // Wraps a 32-bit unsigned integer to provide type safety, preventing accidental mixing with
+    // other numeric variables.
     struct ActorId
     {
-        /// The underlying numeric value of the ID. Defaults to 0 (invalid).
-        std::uint32_t value = 0;
+        std::uint32_t value = 0; // The underlying numeric value of the ID. Defaults to 0 (invalid).
     };
 
-    /**
-     * @brief Compares two ActorIds for equality.
-     * @param left The first ActorId to compare.
-     * @param right The second ActorId to compare.
-     * @return true if both IDs have the same value, false otherwise.
-     */
+    // Compares two ActorIds for exact value equality.
     bool operator==(ActorId left, ActorId right);
 
-    /**
-     * @brief Compares two ActorIds for inequality.
-     * @param left The first ActorId to compare.
-     * @param right The second ActorId to compare.
-     * @return true if the IDs have different values, false otherwise.
-     */
+    // Compares two ActorIds for value inequality.
     bool operator!=(ActorId left, ActorId right);
 
-    /**
-     * @brief Checks if an ActorId represents a valid actor.
-     * @param id The ActorId to evaluate.
-     * @return true if the ID is valid (typically non-zero), false otherwise.
-     */
+    // Checks if an ActorId represents a valid actor handle (enforces the non-zero convention).
     bool isValid(ActorId id);
 }

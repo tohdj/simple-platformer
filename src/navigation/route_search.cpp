@@ -1,3 +1,13 @@
+/**
+ * @file route_search.cpp
+ * @brief Graph search algorithms and functional descriptors for calculating low-level actor routes
+ * using A*.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/navigation/route_search.hpp"
 
 #include <algorithm>
@@ -36,6 +46,8 @@ namespace simple_platformer
         // Every location of a cell has its own node slot.
         constexpr int SurfacesPerCell = 4;
 
+        // Evaluates the heuristic cost estimator function and validates that the approximation is
+        // strictly non-negative.
         int estimateRemainingCost(
             const HeuristicFunction& heuristic,
             RouteLocation location,
@@ -62,6 +74,8 @@ namespace simple_platformer
         // estimate the highest priority. An entry that costs more comes out later.
         struct MoreExpensive
         {
+            // Binary predicate sorting entries into a min-heap structure based on total cost
+            // weights.
             bool operator()(const FrontierEntry& left, const FrontierEntry& right) const
             {
                 // Keep discovery order for equal estimates, including after a node reopens.
@@ -71,6 +85,8 @@ namespace simple_platformer
             }
         };
 
+        // Unwinds parent graph nodes sequentially to re-construct a chronologically ordered path
+        // instruction array.
         Route reconstructRoute(const std::vector<SearchNode>& nodes, std::size_t goalIndex)
         {
             std::vector<RouteStep> steps;
@@ -80,17 +96,21 @@ namespace simple_platformer
                 const SearchNode& currentNode = nodes[current];
                 if (!currentNode.incoming.has_value())
                 {
-                    break;
+                    break; // Origin root isolated: termination criterion met.
                 }
 
                 const IncomingStep& incoming = currentNode.incoming.value();
-                steps.push_back(incoming.step);
-                current = incoming.parentIndex;
+                steps.push_back(incoming.step); // Collect sequence layers backwards.
+                current = incoming.parentIndex; // Pivot state directly up to parent node.
             }
-            std::reverse(steps.begin(), steps.end());
+            std::reverse(
+                steps.begin(),
+                steps.end()); // Flip reverse tracking logs into forward instruction sets.
             return {nodes[current].location, std::move(steps)};
         }
 
+        // Serializes a multi-dimensional route location coordinate struct into a single, flat
+        // vector map lookup row index.
         std::size_t slotOf(GridSize grid, RouteLocation location)
         {
             const std::size_t cell =
@@ -100,6 +120,8 @@ namespace simple_platformer
                    static_cast<std::size_t>(location.surface);
         }
 
+        // Asserves whether a targeted cell index exists inside level dimensions and hosts valid
+        // surface vectors.
         bool containsLocation(GridSize grid, RouteLocation location)
         {
             const int surface = static_cast<int>(location.surface);
@@ -107,6 +129,9 @@ namespace simple_platformer
         }
     }
 
+
+    // Executes an admissible A* search calculation to isolate the absolute lowest-cost node
+    // transition track to the destination target cell
     RouteSearchResult findLowestCostRoute(
         RouteLocation start,
         Cell goal,
@@ -114,6 +139,8 @@ namespace simple_platformer
         const ConnectionFunction& connections,
         const HeuristicFunction& heuristic)
     {
+        // Safety Guard Pass: Verify algorithm pointers and map space bounds are valid before
+        // running search allocations
         if (!connections)
         {
             throw std::invalid_argument("Route search requires a connection function");
@@ -154,6 +181,9 @@ namespace simple_platformer
             [&](const RouteConnection& connection, std::size_t parentIndex, int parentCost)
         {
             const RouteLocation destination = connection.step.destination;
+
+            // Validate incoming edge structural parameters to protect tracking tables from
+            // corruption
             if (connection.cost <= 0)
             {
                 throw std::invalid_argument("A route connection must have positive cost");
@@ -178,6 +208,8 @@ namespace simple_platformer
                 return;
             }
 
+            // Verify calculation stability to shield priority queues from integer wrapping
+            // artifacts
             const int estimate = estimateRemainingCost(heuristic, destination, goal);
             if (nextCost > std::numeric_limits<int>::max() - estimate)
             {
@@ -203,10 +235,12 @@ namespace simple_platformer
             SearchNode& known = nodes[static_cast<std::size_t>(existing)];
             known.costFromStart = nextCost;
             known.incoming = IncomingStep{parentIndex, connection.step};
-            known.closed = false;
+            known.closed = false; // Re-open node to propagate optimal cost corrections downstream
             frontier.push({total, static_cast<std::size_t>(existing)});
         };
 
+        // Main algorithm evaluation loop: expand cheapest nodes sequentially until the target cell
+        // is isolated
         while (!frontier.empty())
         {
             // 1. Take the cheapest entry. Skip it if its node has already been expanded. That
@@ -217,14 +251,15 @@ namespace simple_platformer
             SearchNode& node = nodes[next.nodeIndex];
             if (node.closed)
             {
-                continue;
+                continue; // Discard stale higher-cost paths remaining in queue
             }
 
             // 2. The first location in the goal cell taken off the frontier is the
             //    cheapest one because the heuristic never overestimates.
             if (node.location.cell == goal)
             {
-                return {reconstructRoute(nodes, next.nodeIndex)};
+                return {reconstructRoute(nodes, next.nodeIndex)}; // Goal reached: trace back parent
+                                                                  // steps to return optimal path
             }
 
             const RouteLocation location = node.location;
@@ -232,13 +267,14 @@ namespace simple_platformer
             // 3. Expand it: close it, then for each place one step away, check whether going
             //    through this node is the cheapest way there found so far.
             const int parentCost = node.costFromStart;
-            node.closed = true;
+            node.closed = true; // Finalize cost tracks for this node layout context
             for (const RouteConnection& connection : connections(location))
             {
                 relax(connection, next.nodeIndex, parentCost);
             }
         }
 
-        return {};
+        return {}; // Return empty optional payload if the frontier drains completely with zero
+                   // solutions located
     }
 }

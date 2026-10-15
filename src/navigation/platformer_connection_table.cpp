@@ -1,3 +1,13 @@
+/**
+ * @file platformer_connection_table.cpp
+ * @brief Thread-safe graph cache containing cell connections and dynamic reconstruction tracking
+ * for tile breaks.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/navigation/platformer_connection_table.hpp"
 
 #include <algorithm>
@@ -17,6 +27,7 @@ namespace simple_platformer
 {
     namespace
     {
+        // Projects a 2D tile cell index down into a continuous row-major 1D array offset coordinate
         std::size_t indexOf(GridSize grid, Cell cell)
         {
             return static_cast<std::size_t>(cell.y) * static_cast<std::size_t>(grid.width) +
@@ -24,6 +35,7 @@ namespace simple_platformer
         }
     }
 
+    // Inspects and instantiates full navigation graph tables for an incoming capabilities profile
     void PlatformerConnectionTable::prepare(
         const TileMap& map,
         const PlatformerTraversalProfile& profile)
@@ -33,21 +45,27 @@ namespace simple_platformer
             throw std::invalid_argument(
                 "Connections require a finite, positive profile size and step");
         }
+
         const GridSize grid = map.size();
         if (!profileTables.empty() && (profileTables.front().grid.width != grid.width ||
                                        profileTables.front().grid.height != grid.height))
         {
             throw std::logic_error("A connection table belongs to one map");
         }
+
+        // Process dynamic environmental geometry updates to keep historical node connections
+        // completely clean
         applyRecordedTileBreaks(map);
         if (isBuilt(profile))
         {
-            return;
+            return; // Target profile caching table is already optimized and stored
         }
 
         ProfileTable table{profile, grid, {}};
         table.cells.reserve(static_cast<std::size_t>(grid.width) * grid.height);
 
+        // Nested column-by-row traversal building route connection vectors across every map cell
+        // coordinate
         for (int row = 0; row < grid.height; ++row)
         {
             for (int column = 0; column < grid.width; ++column)
@@ -61,6 +79,8 @@ namespace simple_platformer
         profileTables.push_back(std::move(table));
     }
 
+    // Identifies graph segments whose predictive sweeps intersect newly broken walls/floors and
+    // recalculates them incrementally
     void PlatformerConnectionTable::applyRecordedTileBreaks(const TileMap& map)
     {
         const std::vector<Cell>& broken = map.brokenCells();
@@ -70,8 +90,10 @@ namespace simple_platformer
         }
         if (breaksSeen == broken.size())
         {
-            return;
+            return; // Cache remains fully synchronized with destructible tile maps
         }
+
+        // Isolate the un-processed chunk of the map modification log array
         const auto unseen = broken.begin() + static_cast<std::ptrdiff_t>(breaksSeen);
 
         for (ProfileTable& table : profileTables)
@@ -82,6 +104,9 @@ namespace simple_platformer
                 {
                     const Cell cell{column, row};
                     CellConnections& stored = table.cells[indexOf(table.grid, cell)];
+
+                    // Footprint Intersection Rule: invalidate if newly broken cells fall inside
+                    // this node's original verification bounds
                     const bool touched = std::any_of(
                         unseen,
                         broken.end(),
@@ -89,8 +114,11 @@ namespace simple_platformer
                         { return contains(stored.footprint, brokenCell); });
                     if (!touched)
                     {
-                        continue;
+                        continue; // Underlying geometry remains stable for this node: preserve
+                                  // cache rows
                     }
+
+                    // Re-calculate edge routes exclusively for the corrupted cell entry point
                     BuiltPlatformerConnections built =
                         buildPlatformerConnections(map, cell, table.profile);
 
@@ -98,14 +126,19 @@ namespace simple_platformer
                 }
             }
         }
-        breaksSeen = broken.size();
+        breaksSeen =
+            broken.size(); // Advance index tracking limits to close the synchronization step
     }
 
+    // Returns true if a profile table instance matches the incoming capabilities template
+    // signatures
     bool PlatformerConnectionTable::isBuilt(const PlatformerTraversalProfile& profile) const
     {
         return findTable(profile) != nullptr;
     }
 
+    // Public reader extracting the cached list of valid outgoing route links matching a target cell
+    // layout
     const std::vector<RouteConnection>& PlatformerConnectionTable::connections(
         Cell cell,
         const PlatformerTraversalProfile& profile) const
@@ -113,6 +146,8 @@ namespace simple_platformer
         return entry(cell, profile).connections;
     }
 
+    // Public reader extracting the complete sensory scanning footprint box bounding a targeted node
+    // cell
     const CellRange& PlatformerConnectionTable::footprint(
         Cell cell,
         const PlatformerTraversalProfile& profile) const
@@ -120,6 +155,8 @@ namespace simple_platformer
         return entry(cell, profile).footprint;
     }
 
+    // Traverses internal containers linearly to isolate table data matches using capabilities
+    // profile keys
     const PlatformerConnectionTable::ProfileTable* PlatformerConnectionTable::findTable(
         const PlatformerTraversalProfile& profile) const
     {
@@ -130,6 +167,8 @@ namespace simple_platformer
         return table == profileTables.end() ? nullptr : &*table;
     }
 
+    // Handles index boundaries validation and provides direct memory lookups for requested
+    // sub-nodes
     const PlatformerConnectionTable::CellConnections& PlatformerConnectionTable::entry(
         Cell cell,
         const PlatformerTraversalProfile& profile) const

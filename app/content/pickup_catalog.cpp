@@ -1,3 +1,13 @@
+/**
+ * @file        pickup_catalog.cpp
+ * @brief       Declares the PickupCatalog structures and functions for loading, 
+ *              parsing, validating, and composing in-world collectible item definitions.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "pickup_catalog.hpp"
 #include "content_diagnostics.hpp"
 #include "content_json.hpp"

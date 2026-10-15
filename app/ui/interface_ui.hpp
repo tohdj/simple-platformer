@@ -1,3 +1,13 @@
+/**
+ * @file        interface_ui.hpp
+ * @brief       Declares user interface rendering functions and request structures
+ *              for drawing HUD elements and managing inventory overlay interactions.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <cstddef>

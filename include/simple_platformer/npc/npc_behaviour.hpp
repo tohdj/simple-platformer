@@ -22,61 +22,25 @@ namespace simple_platformer
     struct NpcUpdate;
     struct PathFollower;
 
-    /**
-     * @brief Formulates an intentional tracking look vector heading towards a target location.
-     * @note Writing to an actor's intentional aiming registry allows physics systems to safely
-     * orient its horizontal facing later.
-     * @param actor The underlying physical actor entity data structure.
-     * @param targetFeet World pixel coordinates tracking the target's baseline footprint anchor
-     * point.
-     */
+    // Formulates an intentional tracking look vector heading towards a target location.
+    // Writing to an actor's intentional aiming registry allows physics systems to safely orient its
+    // horizontal facing later.
     void aimToward(Actor& actor, glm::vec2 targetFeet);
 
-    /**
-     * @brief Commands the actor to cycle its focal direction periodically across idle intervals.
-     * @param actor The underlying physical actor entity data structure.
-     * @param brain Cognitive state tracking internal timers, chosen tactics, and historical target
-     * footprints.
-     * @param stateElapsed Total continuous time in seconds spent executing the current AI state.
-     */
+    // Commands the actor to cycle its focal direction periodically across idle intervals.
     void lookAbout(Actor& actor, const NpcBrain& brain, float stateElapsed);
 
-    /**
-     * @brief Directs conditional transition rules to map out tactical state modifications.
-     * @note This function operates deterministically based on facts and does not mutate actors or
-     * dispatch commands directly.
-     * @param tactic The governing strategy archetype tracking operational capabilities.
-     * @param state The active AI state node monitored prior to validation checking.
-     * @param facts Analyzed environmental parameters and context flags gathered this loop.
-     * @return std::optional<NpcState> Target state modification node if triggered, or std::nullopt
-     * to maintain active loops.
-     */
+    // Directs conditional transition rules to map out tactical state modifications.
+    // This function operates deterministically based on facts and does not mutate actors or
+    // dispatch commands directly.
     std::optional<NpcState> nextNpcState(NpcTactic tactic, NpcState state, const NpcFacts& facts);
 
-    /**
-     * @brief Triggers lifecycle hooks and memory resets whenever an NPC enters a newly selected
-     * state.
-     * @param actor The underlying physical actor entity data structure.
-     * @param brain Cognitive state tracking internal timers, chosen tactics, and historical target
-     * footprints.
-     * @param follower Path navigation controller tracing waypoints and replaying inputs.
-     * @param state The target state node context being initialized.
-     */
+    // Triggers lifecycle hooks and memory resets whenever an NPC enters a newly selected state.
     void enterNpcState(Actor& actor, NpcBrain& brain, PathFollower& follower, NpcState state);
 
-    /**
-     * @brief Computes mechanical input behaviors for an actor based on its active state loop
-     * context.
-     * @param update Aggregated world state properties, including delta clocks and pathfinders.
-     * @param actor The underlying physical actor entity data structure to manipulate.
-     * @param brain Cognitive state tracking internal timers, chosen tactics, and historical target
-     * footprints.
-     * @param follower Path navigation controller tracing waypoints and replaying inputs.
-     * @param target Pointer targeting the live opponent being tracked, or nullptr if out of sensory
-     * ranges.
-     * @param state The active execution state being processed this frame tick.
-     * @param stateElapsed Total continuous time in seconds spent executing the current AI state.
-     */
+    // Computes mechanical input behaviors for an actor based on its active state loop context.
+    // Generates specific target inputs, weapon signals, or lookaround updates based on the
+    // evaluated state node.
     void updateNpcState(
         const NpcUpdate& update,
         Actor& actor,

@@ -1,3 +1,13 @@
+/**
+ * @file        navigation_debug_ui.hpp
+ * @brief       Declares diagnostic overlay rendering functions for visualizing pathfinding
+ *              cell footprints, connection nodes, and profiling metrics via Dear ImGui.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <imgui.h>

@@ -1,3 +1,13 @@
+/**
+ * @file        game.hpp
+ * @brief       Declares the primary Game management class that coordinates simulation frames,
+ *              level loading transitions, input intent application, and visual compilation.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */                                                                                                \
+
 #pragma once
 
 #include <optional>

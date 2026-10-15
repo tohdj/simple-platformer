@@ -1,3 +1,13 @@
+/**
+ * @file        game_catalogs.cpp
+ * @brief       Declares the GameCatalogs master structure and functions for loading 
+ *              and validating all engine asset configuration definitions together.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "game_catalogs.hpp"
 #include <filesystem>
 #include <glm/vec2.hpp>

@@ -1,3 +1,13 @@
+/**
+ * @file        npc_names.cpp
+ * @brief       Declares diagnostic string mapping functions to retrieve human-readable
+ *              names for NPC states and tactical behaviors.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "npc_names.hpp"
 
 #include "simple_platformer/npc/npc.hpp"

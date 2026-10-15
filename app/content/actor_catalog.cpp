@@ -1,3 +1,13 @@
+/**
+ * @file        ActorCatalog.cpp
+ * @brief       Declares the ActorCatalog structures and functions for loading, 
+ *              parsing, and validating character and enemy definitions.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "actor_catalog.hpp"
 #include "content_diagnostics.hpp"
 #include "content_json.hpp"

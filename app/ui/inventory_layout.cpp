@@ -1,3 +1,13 @@
+/**
+ * @file        inventory_layout.cpp
+ * @brief       Declares the InventoryGridLayout structure and layout helper functions
+ *              for structuring the inventory user interface slots into column grids.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "inventory_layout.hpp"
 
 #include <algorithm>

@@ -18,9 +18,7 @@
 
 namespace simple_platformer
 {
-    /**
-     * @brief Supported states for actor animations.
-     */
+    // Supported states for actor animations.
     enum class AnimationName
     {
         Idle,
@@ -31,87 +29,46 @@ namespace simple_platformer
         Death
     };
 
-    /**
-     * @brief Holds data for a single sequence of animation frames.
-     */
+    // Holds data for a single sequence of animation frames.
     struct AnimationClip
     {
-        /// The identifier for this specific clip.
-        AnimationName name = AnimationName::Idle;
-        /// Sub-regions of the texture atlas making up the frames.
-        std::vector<SpriteRegion> frames;
-        /// Time in seconds to display each individual frame.
-        float frameDuration = 0.1F;
-        /// True if the animation should wrap around when it finishes.
-        bool looping = true;
+        AnimationName name = AnimationName::Idle; // The identifier for this specific clip.
+        std::vector<SpriteRegion> frames; // Sub-regions of the texture atlas making up the frames.
+        float frameDuration = 0.1F;       // Time in seconds to display each individual frame.
+        bool looping = true; // True if the animation should wrap around when it finishes.
     };
 
-    /**
-     * @brief A collection of animation clips available to an entity.
-     */
+    // A collection of animation clips available to an entity.
     struct AnimationSet
     {
-        /// List of clips defined for the actor or entity type.
-        std::vector<AnimationClip> clips;
+        std::vector<AnimationClip> clips; // List of clips defined for the actor or entity type.
     };
 
-    /**
-     * @brief Component managing the active animation state and playback runtime.
-     */
+    // Component managing the active animation state and playback runtime.
     struct Animator
     {
-        /// The clip key currently being tracked and evaluated.
-        AnimationName current = AnimationName::Idle;
-        /// Cumulative playback time in seconds spent on the current clip.
-        float elapsed = 0.0F;
-        /// The collection of animations available to this instance.
-        AnimationSet animationSet;
+        AnimationName current =
+            AnimationName::Idle;   // The clip key currently being tracked and evaluated.
+        float elapsed = 0.0F;      // Cumulative playback time in seconds spent on the current clip.
+        AnimationSet animationSet; // The collection of animations available to this instance.
     };
 
-    /**
-     * @brief Looks up a specific animation clip within an animation set.
-     * @param animationSet The source collection of clips.
-     * @param name The target clip identifier to find.
-     * @return Reference to the matching clip, or a fallback (e.g., Idle) if not found.
-     */
+    // Looks up a specific animation clip within an animation set.
     const AnimationClip& clipFor(const AnimationSet& animationSet, AnimationName name);
 
-    /**
-     * @brief Determines the exact sprite frame to display based on elapsed time.
-     * @param clip The source animation clip containing the frames.
-     * @param elapsedSeconds Total playback time advanced on this clip.
-     * @return Reference to the active SpriteRegion structure.
-     */
+    // Determines the exact sprite frame to display based on elapsed time.
     const SpriteRegion& frameAt(const AnimationClip& clip, float elapsedSeconds);
 
-    /**
-     * @brief Advances playback state and binds the calculated frame data to a sprite.
-     *
-     * Handles state transitions if `selected` differs from `animator.current`, increments
-     * the elapsed time tracker, tracks loop limits, and updates the target sprite region.
-     *
-     * @param animator The runtime playback state to update.
-     * @param sprite The target renderable object receiving the frame update.
-     * @param selected The intended animation state requested by logic this frame.
-     * @param deltaTime Elapsed frame time in seconds.
-     */
+    // Advances playback state, handles transitions, and binds the calculated frame data to a
+    // sprite.
     void updateAnimation(
         Animator& animator,
         Sprite& sprite,
         AnimationName selected,
         float deltaTime);
 
-    /**
-     * @brief State machine helper that resolves an actor's animation based on status flags.
-     *
-     * Evaluates flags in priority order (e.g., Death overrides Attack, Attack overrides Movement).
-     *
-     * @param dying Is the actor undergoing a death sequence?
-     * @param attacking Is the actor currently performing an attack action?
-     * @param grounded Is the actor standing firmly on static geometry?
-     * @param velocity The current 2D physics velocity vector of the actor.
-     * @return The determined AnimationName state matching the conditions.
-     */
+    // State machine helper that resolves an actor's animation based on status flags in priority
+    // order.
     AnimationName selectActorAnimation(
         bool dying,
         bool attacking,

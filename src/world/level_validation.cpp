@@ -1,3 +1,13 @@
+/**
+ * @file level_validation.cpp
+ * @brief Spatial integrity validation and spawn point clearance verifications for level actor
+ * configurations.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/world/level_validation.hpp"
 
 #include <stdexcept>
@@ -19,6 +29,8 @@ namespace simple_platformer
 {
     namespace
     {
+        // Scans all grid cells overlapping an Axis-Aligned Bounding Box (AABB)
+        // to verify that the bounding region is free from solid, movement-blocking tiles.
         bool hasClearance(const TileMap& map, const Aabb& bounds)
         {
             const CellRange cells = cellsCovered(map.tileSize(), bounds);
@@ -28,16 +40,19 @@ namespace simple_platformer
                 {
                     if (map.blocksMovement({column, row}))
                     {
-                        return false;
+                        return false; // Collision detected with environmental tile
                     }
                 }
             }
-            return true;
+            return true; // No solid geometry overlaps the region
         }
 
+        // Checks the horizontal row of grid tiles immediately beneath the bottom edge
+        // of a bounding region to ensure that an entity has solid standing ground.
         bool hasGroundSupport(const TileMap& map, const Aabb& bounds)
         {
             const CellRange cells = cellsCovered(map.tileSize(), bounds);
+            // Project down slightly past the bottom boundary edge using an tolerance offset
             const int rowBelow =
                 cellAt(map.tileSize(), {bounds.topLeft.x, bottomOf(bounds) + EdgeTolerance}).y;
 
@@ -45,18 +60,22 @@ namespace simple_platformer
             {
                 if (map.blocksMovement({column, rowBelow}))
                 {
-                    return true;
+                    return true; // Found stable standing floor geometry
                 }
             }
-            return false;
+            return false; // No supporting blocks are underneath the entity bounds
         }
 
+        // Formats a diagnostic string mapping out level information and actor IDs for exception
+        // tracking logs
         std::string actorLocation(int level, ActorId actor, std::string_view place)
         {
             return "Level " + std::to_string(level) + " actor " + std::to_string(actor.value) +
                    " " + std::string(place);
         }
 
+        // Verifies actor positioning conditions, throwing an argument exception if bounding
+        // space overlaps solid blocks or if gravity-dependent entities lack ground support.
         void validatePlacement(
             const TileMap& map,
             const Actor& actor,
@@ -76,6 +95,8 @@ namespace simple_platformer
             }
         }
 
+        // Simulates a standing bounding box using target base-foot coordinates,
+        // passing the derived boundaries along for structural placement analysis.
         void validateAtFeet(
             const TileMap& map,
             const Actor& actor,
@@ -88,6 +109,7 @@ namespace simple_platformer
             validatePlacement(map, actor, bounds, level, place, needsGround);
         }
 
+        // Determines whether an AI actor requires floor geometry to navigate.
         // A climber can patrol to a wall or ceiling; navigation takes it to the nearest
         // place it can hold.
         bool patrolNeedsGround(const Actor& actor)
@@ -96,16 +118,24 @@ namespace simple_platformer
         }
     }
 
+    // Evaluates the initial positions and AI navigation bounds of all level actors
+    // before runtime execution to ensure no map geometry conflicts exist.
     void validateLevelActors(const TileMap& map, const World& world, int level)
     {
+        // 1. Process validation checking paths for all configured level actors
         for (const Actor& actor : world.actors())
         {
             const bool platformer = actor.platformerMovement.has_value();
+            // Assert that the initial starting spawn bounding box fits safely within the level
+            // geometry
             validatePlacement(map, actor, actor.body.bounds, level, "spawn", platformer);
+
             if (!actor.patrol.has_value())
             {
-                continue;
+                continue; // Skip waypoint checking if this actor does not patrol
             }
+
+            // Assert that both AI destination travel endpoints rest on safe, valid coordinate nodes
             const bool needsGround = patrolNeedsGround(actor);
             validateAtFeet(
                 map, actor, actor.patrol->firstFeet, level, "first patrol point", needsGround);
@@ -113,9 +143,12 @@ namespace simple_platformer
                 map, actor, actor.patrol->secondFeet, level, "second patrol point", needsGround);
         }
 
+        // 2. Locate the primary controlled hero entity to verify its global recovery point
         const Actor* player = world.findActor(world.playerId());
         if (player != nullptr)
         {
+            // Assert that the default player spawn anchor configuration provides safe, unblocked
+            // standing space
             validateAtFeet(
                 map,
                 *player,

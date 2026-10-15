@@ -1,3 +1,13 @@
+/**
+ * @file        content_json.cpp
+ * @brief       Declares strict JSON validation and type extraction functions for
+ *              loading engine data types, shapes, and sprite elements safely.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "content_json.hpp"
 #include "content_diagnostics.hpp"
 #include <algorithm>

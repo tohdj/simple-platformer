@@ -1,3 +1,13 @@
+/**
+ * @file        main.cpp
+ * @brief       The primary entry point for the application, containing the global
+ *              main function and top-level error handling blocks.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include <cstdlib>
 #include <exception>
 #include <iostream>

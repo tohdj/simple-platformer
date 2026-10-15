@@ -1,3 +1,12 @@
+/**
+ * @file render_scene.hpp
+ * @brief Transforms simulation metrics into unified screen-space sprite drawing command matrices.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/render/render_scene.hpp"
 
 #include <algorithm>
@@ -23,6 +32,7 @@ namespace simple_platformer
 {
     namespace
     {
+        // Global visual timing scalars and animation configurations
         constexpr float DeathFadeSeconds = 0.2F;
         constexpr float HitFlashSeconds = 0.1F;
         constexpr float HitFlashAmount = 0.1F;
@@ -35,6 +45,7 @@ namespace simple_platformer
         constexpr float ProjectileBurstFinalScale = 2.0F;
         constexpr float RadiansPerCycle = 6.28318530717958647692F;
 
+        // Calculates transparency curves based on an entity's remaining decay time after dying
         float actorOpacity(const Actor& actor)
         {
             if (actor.life == LifeState::Alive)
@@ -44,6 +55,8 @@ namespace simple_platformer
             return std::clamp(actor.deathTimeRemaining / DeathFadeSeconds, 0.0F, 1.0F);
         }
 
+        // Resolves white damage flash mix amounts if an entity sustained a hit within the flash
+        // window threshold
         float actorWhiteFlashAmount(const World& world, const Actor& actor)
         {
             const std::optional<float> sinceDamage =
@@ -53,7 +66,8 @@ namespace simple_platformer
             return wasRecentlyDamaged ? HitFlashAmount : 0.0F;
         }
 
-        // 0 until the exit is entered, 1 once it has fully opened.
+        // Computes the normalized progression ratio (0.0 to 1.0) of the stage-exit portal
+        // transition state 0 until the exit is entered, 1 once it has fully opened.
         float exitOpenProgress(const World& world)
         {
             const auto& exit = world.exit();
@@ -69,12 +83,16 @@ namespace simple_platformer
             return std::clamp(*sinceOpened / ExitOpenSeconds, 0.0F, 1.0F);
         }
 
+        // Generates smooth vertical offset values using cosine wave transformations to make loot
+        // items levitate
         float pickupVerticalOffset(float animationTime)
         {
             const float cycleRadians = animationTime * RadiansPerCycle / PickupBobPeriodSeconds;
             return -PickupBobHeight * 0.5F * (1.0F - std::cos(cycleRadians));
         }
 
+        // Derives an initial phase shift using spatial coordinates to prevent level items from
+        // bobbing in absolute unison
         float pickupPhaseOffset(int tileSize, const Aabb& bounds)
         {
             // Spread level-start pickups across four phases instead of bobbing in lockstep.
@@ -88,6 +106,8 @@ namespace simple_platformer
                    static_cast<float>(PickupBobPhaseCount);
         }
 
+        // View-frustum culling system: pushes visible structural tile meshes into the render
+        // pipeline scene buffer
         void appendTiles(
             RenderScene& scene,
             const TileMap& map,
@@ -95,6 +115,8 @@ namespace simple_platformer
             const Camera& camera)
         {
             const float tileSize = static_cast<float>(map.tileSize());
+            // Map spatial viewport corners to pixel columns and rows to completely bypass
+            // out-of-frame blocks
             const int firstColumn =
                 std::max(0, static_cast<int>(std::floor(camera.position.x / tileSize)));
             const int lastColumn = std::min(
@@ -110,6 +132,7 @@ namespace simple_platformer
                     std::ceil((camera.position.y + camera.viewportSize.y) / tileSize)) -
                     1);
 
+            // Scan through rows and columns within view parameters to append active nodes
             for (int row = firstRow; row <= lastRow; ++row)
             {
                 for (int column = firstColumn; column <= lastColumn; ++column)
@@ -117,7 +140,7 @@ namespace simple_platformer
                     const Cell cell{column, row};
                     if (map.tileAt(cell) == 0)
                     {
-                        continue;
+                        continue; // Passable airspace tile
                     }
 
                     const glm::vec2 worldPosition = {
@@ -134,6 +157,7 @@ namespace simple_platformer
             }
         }
 
+        // Calculates hover translations and appends visible collectible items into the draw queue
         void appendPickups(
             RenderScene& scene,
             const TileMap& map,
@@ -165,6 +189,7 @@ namespace simple_platformer
             }
         }
 
+        // Configures cutscene overlays and enqueues the exit gateway structure
         void appendExit(RenderScene& scene, const World& world, const Camera& camera)
         {
             const auto& exit = world.exit();
@@ -181,6 +206,7 @@ namespace simple_platformer
 
             const Sprite& sprite = levelExit.sprite.value();
             const Aabb bounds = spriteBounds(levelExit.bounds, sprite);
+            // Blend out flash metrics dynamically as completion percentages grow close to 1.0
             const float flash = levelExit.openedTimeSeconds.has_value()
                                     ? (1.0F - exitOpenProgress(world)) * ExitOpenFlashAmount
                                     : 0.0F;
@@ -196,6 +222,7 @@ namespace simple_platformer
             scene.sprites.push_back(command);
         }
 
+        // Resolves directional flipping flags, alpha decays, and damage color masks for character sprites
         void appendActors(RenderScene& scene, const World& world, const Camera& camera)
         {
             const float playerOpacity = 1.0F - exitOpenProgress(world);
@@ -229,15 +256,23 @@ namespace simple_platformer
             }
         }
 
+        // Populates the rendering queue with active projectiles, orienting them along their
+        // velocity trajectories
         void appendProjectiles(RenderScene& scene, const World& world, const Camera& camera)
         {
             for (const Projectile& projectile : world.projectiles())
             {
+                // Align the center of the visual sprite perfectly with the midpoint of the physics
+                // collider
                 const glm::vec2 projectileCenter = centerOf(projectile.bounds);
                 const glm::vec2 spritePosition =
                     projectileCenter - projectile.sprite.region.size * 0.5F;
+
+                // Derive the tracking orientation angle using the horizontal and vertical velocity
+                // offsets
                 const float rotationRadians =
                     std::atan2(projectile.velocity.y, projectile.velocity.x);
+
                 SpriteDrawCommand command;
                 command.textureId = projectile.sprite.textureId;
                 command.position = worldToScreen(camera, spritePosition);
@@ -249,17 +284,26 @@ namespace simple_platformer
             }
         }
 
+        // Processes dynamic scale updates and transparency fades for expanding explosion/impact
+        // burst particle overlays
         void appendProjectileBursts(RenderScene& scene, const World& world, const Camera& camera)
         {
             for (const ProjectileBurst& burst : world.projectileBursts())
             {
+                // Calculate progress metrics to handle life cycles accurately
                 const float remainingFraction =
                     std::clamp(burst.lifetimeRemaining / burst.duration, 0.0F, 1.0F);
                 const float progress = 1.0F - remainingFraction;
+
+                // Interpolate texture dimensions outwards over time to simulate a swelling
+                // shockwave effect
                 const float scale = 1.0F + progress * (ProjectileBurstFinalScale - 1.0F);
                 const glm::vec2 size = burst.sprite.region.size * scale;
                 const glm::vec2 position = burst.center - size * 0.5F;
+
+                // Align directional assets with the impact vector trajectory path
                 const float rotationRadians = std::atan2(burst.direction.y, burst.direction.x);
+
                 SpriteDrawCommand command;
                 command.textureId = burst.sprite.textureId;
                 command.position = worldToScreen(camera, position);
@@ -267,12 +311,15 @@ namespace simple_platformer
                 command.source = burst.sprite.region;
                 command.flipHorizontal = false;
                 command.rotationRadians = rotationRadians;
-                command.opacity = remainingFraction;
+                command.opacity =
+                    remainingFraction; // Smoothly dissolve alpha levels to zero as expiration nears
                 scene.sprites.push_back(command);
             }
         }
     }
 
+    // Constructs the final comprehensive render frame by appending layers in a strict back-to-front
+    // sorting order
     RenderScene buildRenderScene(
         const TileMap& map,
         int tileTextureId,
@@ -280,12 +327,25 @@ namespace simple_platformer
         const World& world)
     {
         RenderScene scene;
+
+        // Layer 1: Background environment grid geometry
         appendTiles(scene, map, tileTextureId, camera);
+
+        // Layer 2: Floating collectible loot entities and items
         appendPickups(scene, map, world, camera);
+
+        // Layer 3: Level completion gateway/portal structures
         appendExit(scene, world, camera);
+
+        // Layer 4: Living entities, characters, and monsters
         appendActors(scene, world, camera);
+
+        // Layer 5: Active particle hazards and bullet instances
         appendProjectiles(scene, world, camera);
+
+        // Layer 6: Foreground particle bursts and explosions
         appendProjectileBursts(scene, world, camera);
+
         return scene;
     }
 }

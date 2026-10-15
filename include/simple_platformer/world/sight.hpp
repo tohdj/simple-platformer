@@ -1,5 +1,5 @@
 /**
- * @file line_of_sight.hpp
+ * @file sight.hpp
  * @brief Raycasting verification routines for establishing visibility and lines of sight.
  *
  * @author Mohd Fadzuli

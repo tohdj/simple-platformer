@@ -1,3 +1,12 @@
+/**
+ * @file world.cpp
+ * @brief Core state container and manager for the active gameplay simulation world.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/world/world.hpp"
 
 #include <algorithm>
@@ -27,6 +36,7 @@ namespace simple_platformer
 {
     namespace
     {
+        // Validates all internal attributes of a projectile to prevent simulation corruptions
         void validateProjectile(const simple_platformer::Projectile& projectile)
         {
             if (!isFinite(projectile.bounds.topLeft) || !isFinitePositive(projectile.bounds.size) ||
@@ -39,6 +49,8 @@ namespace simple_platformer
             }
         }
 
+        // Validates projectile burst conditions, checking life metrics, valid causes, and
+        // structural limits
         void validateProjectileBurst(const simple_platformer::ProjectileBurst& burst)
         {
             const bool hasValidCause =
@@ -53,9 +65,10 @@ namespace simple_platformer
                 throw std::invalid_argument("Projectile burst data is invalid");
             }
         }
-
     }
 
+    // Constructor: Initializes the items collection while asserting item integrity and unique
+    // registration IDs
     World::World(std::vector<ItemDefinition> items)
         : itemDefinitions(std::move(items))
     {
@@ -72,6 +85,8 @@ namespace simple_platformer
         }
     }
 
+    // Asserves that a given timestamp falls properly between the start of the game and the current
+    // timeline
     void World::requireWithinSimulationTime(const std::optional<double>& time, const char* what)
         const
     {
@@ -82,6 +97,7 @@ namespace simple_platformer
         }
     }
 
+    // Accessors for the pathfinding/connection grid table used by actors and entities
     PlatformerConnectionTable& World::platformerConnections()
     {
         return platformerConnectionTable;
@@ -92,11 +108,13 @@ namespace simple_platformer
         return platformerConnectionTable;
     }
 
+    // Returns total accumulated runtime simulation seconds
     double World::simulationTimeSeconds() const
     {
         return elapsedSimulationTimeSeconds;
     }
 
+    // Queues a transient sound/noise event into the physics/AI notification pipeline
     void World::emitNoise(NoiseEvent event)
     {
         if (!isValid(event.source) || !isFinite(event.feet))
@@ -106,6 +124,7 @@ namespace simple_platformer
         pendingNoises.push_back(event);
     }
 
+    // Flushes out and returns the list of collected sound notifications for AI processing
     std::vector<NoiseEvent> World::takeNoises()
     {
         std::vector<NoiseEvent> events = std::move(pendingNoises);
@@ -113,6 +132,7 @@ namespace simple_platformer
         return events;
     }
 
+    // Calculates delta time passed since a past simulation timestamp
     std::optional<float> World::secondsSince(const std::optional<double>& timeSeconds) const
     {
         requireWithinSimulationTime(timeSeconds, "Stamp");
@@ -123,12 +143,14 @@ namespace simple_platformer
         return static_cast<float>(elapsedSimulationTimeSeconds - *timeSeconds);
     }
 
+    // Steps forward the primary clock baseline of the global simulation domain
     void World::advanceSimulationTime(float deltaTime)
     {
         requireSeconds(deltaTime, "Simulation time step");
         elapsedSimulationTimeSeconds += deltaTime;
     }
 
+    // Performs a safe identification look-up across the items database
     const ItemDefinition& World::itemDefinition(ItemId id) const
     {
         for (const ItemDefinition& definition : itemDefinitions)
@@ -141,6 +163,8 @@ namespace simple_platformer
         throw std::invalid_argument("Unknown item ID");
     }
 
+    // Registers a fully validated new entity into active simulation, auto-assigning a safe unique
+    // ID
     ActorId World::addActor(Actor actor)
     {
         validateActor(actor);
@@ -162,6 +186,7 @@ namespace simple_platformer
         return id;
     }
 
+    // Erases an actor by ID, clearing active player links if it matches the current hero entity
     bool World::removeActor(ActorId id)
     {
         const auto actor = std::find_if(
@@ -181,6 +206,7 @@ namespace simple_platformer
         return true;
     }
 
+    // Entity lookup interfaces (mutable/immutable versions) returning references or nullpointers
     Actor* World::findActor(ActorId id)
     {
         const auto actor = std::find_if(
@@ -199,6 +225,7 @@ namespace simple_platformer
         return actor == actorStorage.end() ? nullptr : &*actor;
     }
 
+    // Exposes the underlying database vectors for active actors
     std::vector<Actor>& World::actors()
     {
         return actorStorage;
@@ -209,12 +236,14 @@ namespace simple_platformer
         return actorStorage;
     }
 
+    // Appends a new verified projectile node into the execution path
     void World::addProjectile(Projectile projectile)
     {
         validateProjectile(projectile);
         projectileStorage.push_back(projectile);
     }
 
+    // Safely pops a projectile from vector slots without invalidating tracking states
     bool World::removeProjectile(std::size_t index)
     {
         if (index >= projectileStorage.size())
@@ -226,6 +255,7 @@ namespace simple_platformer
         return true;
     }
 
+    // Internal arrays exposure for moving projectiles
     std::vector<Projectile>& World::projectiles()
     {
         return projectileStorage;
@@ -236,12 +266,14 @@ namespace simple_platformer
         return projectileStorage;
     }
 
+    // Injects a particle effect system configuration structure into world space
     void World::addProjectileBurst(ProjectileBurst burst)
     {
         validateProjectileBurst(burst);
         projectileBurstStorage.push_back(burst);
     }
 
+    // Safely removes a burst index node when its lifetime constraints end
     bool World::removeProjectileBurst(std::size_t index)
     {
         if (index >= projectileBurstStorage.size())
@@ -254,6 +286,7 @@ namespace simple_platformer
         return true;
     }
 
+    // Collection reference maps for active bursts
     std::vector<ProjectileBurst>& World::projectileBursts()
     {
         return projectileBurstStorage;
@@ -264,6 +297,8 @@ namespace simple_platformer
         return projectileBurstStorage;
     }
 
+    // Pairs an existing actor identity to the primary controller input pipeline and saves its home
+    // point
     void World::setPlayer(ActorId id, glm::vec2 spawnFeet)
     {
         if (findActor(id) == nullptr || !isFinite(spawnFeet))
@@ -275,11 +310,13 @@ namespace simple_platformer
         controlledPlayerSpawnFeet = spawnFeet;
     }
 
+    // Gets the registration tracking identity of the current hero character
     ActorId World::playerId() const
     {
         return controlledPlayer;
     }
 
+    // Get the player
     glm::vec2 World::playerSpawnFeet() const
     {
         if (!isValid(controlledPlayer))
@@ -289,29 +326,45 @@ namespace simple_platformer
         return controlledPlayerSpawnFeet;
     }
 
+    // Restores the player entity's spatial coordinates, movement physics, states, and health
+    // properties to default values upon death or stage resets
     void World::respawnPlayer()
     {
+        // 1. Locate the controlled hero instance in the world entity database
         Actor* player = findActor(controlledPlayer);
         if (player == nullptr)
         {
             throw std::logic_error("The world has no player to respawn");
         }
 
+        // 2. Relocate physical bounds to the registered spawn point and halt momentum completely
         moveFeetTo(player->body.bounds, controlledPlayerSpawnFeet);
         player->body.velocity = {0.0F, 0.0F};
+
+        // 3. Purge queued controller inputs to prevent carrying over actions across spawn
+        // boundaries
         player->intentions = {};
+
+        // 4. Reset life state metrics and clear the historic invulnerability timestamp record
         player->life = LifeState::Alive;
         player->deathTimeRemaining = 0.0F;
         player->lastDamageTimeSeconds.reset();
+
+        // 5. Fully restore vital stats if the actor utilizes standard health structures
         if (player->health.has_value())
         {
             player->health->current = player->health->maximum;
         }
+
+        // 6. Refresh kinematic platforming behaviors to a clean, mid-air falling state
         if (player->platformerMovement.has_value())
         {
             player->platformerMovement->grounded = false;
-            player->platformerMovement->coyoteRemaining = 0.0F;
-            player->platformerMovement->jumpBufferRemaining = 0.0F;
+            player->platformerMovement->coyoteRemaining =
+                0.0F; // Disables walking off ledges jump privileges
+            player->platformerMovement->jumpBufferRemaining =
+                0.0F; // Drops pre-landing input queues
         }
     }
+
 }

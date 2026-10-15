@@ -1,3 +1,13 @@
+/**
+ * @file        hud_draw.hpp
+ * @brief       Declares primitive text shadowing, text alignment, and texture atlas sub-region
+ *              drawing abstractions built on top of the Dear ImGui rendering pipeline.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <imgui.h>

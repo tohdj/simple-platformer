@@ -1,3 +1,13 @@
+/**
+ * @file        content_validation.cpp
+ * @brief       Declares domain-specific data validations for game assets, layouts,
+ *              maps, pickups, exits, and tile catalogs independent of the file format.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "content_validation.hpp"
 #include "content_diagnostics.hpp"
 

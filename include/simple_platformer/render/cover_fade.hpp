@@ -15,31 +15,19 @@ namespace simple_platformer
     class TileMap;
     class World;
 
-    /** @brief Interpolation speed in seconds for a visual sprite to transition fully between
-     * exposed and concealed states. */
+    // Interpolation speed in seconds for a visual sprite to transition fully between exposed and
+    // concealed states.
     constexpr float CoverFadeSeconds = 0.2F;
 
-    /** @brief Total continuous duration in seconds the player remains fully visible to enemies
-     * after discharging a weapon. */
+    // Total continuous duration in seconds the player remains fully visible to enemies after
+    // discharging a weapon.
     constexpr float ShotRevealSeconds = 1.0F;
 
-    /**
-     * @brief Blends the rendering visibility factors for actors and drops based on environmental
-     * concealment rules.
-     *
-     * This function runs purely presentation-side calculations without mutating active AI sensing
-     * routines. The initial execution forces immediate snapshots, while subsequent ticks smoothly
-     * ease values at a fractional rate bounded by `CoverFadeSeconds`.
-     *
-     * Non-player characters and items remain fully exposed up to a 50% cover intersection, dropping
-     * to complete invisibility beyond 75%. Player entities ignore this occlusion when tracing
-     * external elements, but their personal presentation shadow maps are forced into a fully
-     * exposed state if actively spotted or within the shot-reveal window.
-     *
-     * @param map The static environment geometry grid layout context used to look up
-     * visibility-blocking properties.
-     * @param world The target world simulation data provider carrying active rendering entities.
-     * @param deltaTime The discrete frame presentation update slice measured in seconds.
-     */
+    // Blends the rendering visibility factors for actors and drops based on environmental
+    // concealment rules. This function runs purely presentation-side calculations without mutating
+    // active AI sensing routines. Non-player characters and items remain fully exposed up to a 50%
+    // cover intersection, dropping to complete invisibility beyond 75%. Player entities ignore this
+    // occlusion when tracing external elements, but their personal presentation shadow maps are
+    // forced into a fully exposed state if actively spotted or within the shot-reveal window.
     void updateCoverFades(const TileMap& map, World& world, float deltaTime);
 }

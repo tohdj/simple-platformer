@@ -1,3 +1,13 @@
+/**
+ * @file        sprite_renderer.cpp
+ * @brief       Declares the SpriteRenderer class and Texture structure for managing,
+ *              loading, and rendering GPU-accelerated sprites and texture resources.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "graphics/sprite_renderer.hpp"
 
 #include <algorithm>
@@ -384,7 +394,7 @@ namespace simple_platformer
         // Lock render clipping bounds directly onto our low-res retro specifications
         glViewport(0, 0, InternalWidth, InternalHeight);
         // Set up corporate dark blue-gray tint color properties as the baseline background slate
-        glClearColor(0.08F, 0.12F, 0.18F, 1.0F);
+        glClearColor(0.23F, 0.43F, 0.29F, 1.0F);
         // Clear color memory buffers to sweep the previous frame's layout clean
         glClear(GL_COLOR_BUFFER_BIT);
 

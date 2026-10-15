@@ -1,3 +1,13 @@
+/**
+ * @file        navigation_debug.cpp
+ * @brief       Declares data structures and diagnostic sampling functions for
+ *              extracting pathfinding grids, trajectory arcs, and cell connectivity.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "navigation_debug.hpp"
 
 #include <algorithm>

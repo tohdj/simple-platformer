@@ -1,3 +1,13 @@
+/**
+ * @file        debug_overlay.cpp
+ * @brief       Declares data structures and capture functions for gathering comprehensive, 
+ *              view-bounded simulation snapshots used by diagnostic tools.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "debug_overlay.hpp"
 
 #include "navigation_debug.hpp"

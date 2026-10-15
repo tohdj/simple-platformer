@@ -1,3 +1,13 @@
+/**
+ * @file        AnimationCatalog.cpp
+ * @brief       Declares the AnimationCatalog type alias and functions for loading, 
+ *              parsing, and validating character and effect animation sets.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "animation_catalog.hpp"
 #include "content_diagnostics.hpp"
 #include "content_json.hpp"

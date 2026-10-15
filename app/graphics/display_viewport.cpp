@@ -1,3 +1,13 @@
+/**
+ * @file        display_viewport.cpp
+ * @brief       Declares the layout structures and viewport math projection functions for
+ *              handling letterboxing, scaling, and high-DPI coordinate conversions.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "graphics/display_viewport.hpp"
 
 #include <algorithm>

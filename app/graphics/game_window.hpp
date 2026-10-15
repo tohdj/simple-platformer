@@ -1,3 +1,13 @@
+/**
+ * @file        game_window.hpp
+ * @brief       Declares the GameWindow lifecycle controller and window status structure
+ *              built around the GLFW context environment.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <glm/vec2.hpp>

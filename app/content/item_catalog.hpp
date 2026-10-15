@@ -1,3 +1,13 @@
+/**
+ * @file        item_catalog.hpp
+ * @brief       Declares the ItemCatalog and NamedItemStack structures alongside pipeline
+ *              functions for loading, parsing, validating, and composing game items.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 #include <filesystem>
 #include <map>

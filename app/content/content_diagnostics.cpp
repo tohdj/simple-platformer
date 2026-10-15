@@ -1,3 +1,13 @@
+/**
+ * @file        Diagnostic.cpp
+ * @brief       Declares diagnostic path-building formatting helpers and error reporting
+ *              utilities shared by JSON readers and asset validators.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "content_diagnostics.hpp"
 #include <cstddef>
 #include <functional>

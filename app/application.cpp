@@ -1,3 +1,13 @@
+/**
+ * @file        application.cpp
+ * @brief       Declares the top-level application framework function responsible for
+ *              initializing, running, and shutting down the main engine loop.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "application.hpp"
 
 #include <cstddef>
@@ -296,51 +306,50 @@ namespace simple_platformer
         glfwSetKeyCallback(window.handle(), handleKey);
         glfwSetMouseButtonCallback(window.handle(), handleMouseButton);
         const ImGuiSession imgui(window.handle());
+
         // 2. Resource loading and dependency layout settings
         SpriteRenderer renderer;
         const int atlas = renderer.loadTexture("assets/textures/sprites.png");
         const Texture atlasTexture = renderer.texture(atlas);
         FixedStep fixedStep;
         LevelCatalog levelCatalog = loadLevelCatalog("assets/levels/levels.json");
-        GameCatalogs gameCatalogs =
-            loadGameCatalogs("assets/catalogs", {atlasTexture.width, atlasTexture.height});
-        Game game(
-            atlas,
-            std::move(levelCatalog),
-            std::move(gameCatalogs),
-            static_cast<float>(fixedStep.stepSeconds()));
+        GameCatalogs gameCatalogs = loadGameCatalogs("assets/catalogs", {atlasTexture.width, atlasTexture.height});
+        Game game( atlas, std::move(levelCatalog), std::move(gameCatalogs), static_cast<float>(fixedStep.stepSeconds()));
         Stopwatch frameClock;
+
         // 3. Central Application Runtime Loop
         while (!window.shouldClose())
         {
-            // Process OS windows callback inputs and start ImGui drawing phase
+            // 3.1 Process OS windows callback inputs and start ImGui drawing phase
             glfwPollEvents();
             imgui.beginFrame();
             restartIfRequested(context, game);
-            // Fetch physical frame structural sizes and calculate aspect viewports
+
+            // 3.2 Fetch physical frame structural sizes and calculate aspect viewports
             const WindowReading reading = window.read();
-            const std::optional windowViewport =
-                makeWindowViewport(reading.size, reading.framebufferSize);
-            // Calculate precise timing step intervals
+            const std::optional windowViewport = makeWindowViewport(reading.size, reading.framebufferSize);
+
+            // 3.3 Calculate precise timing step intervals
             const float frameSeconds = frameClock.lapSeconds();
-            const InterfaceRequests interfaceRequests =
-                drawInterface(game, atlasTexture, windowViewport, context.inventoryOpen);
+            const InterfaceRequests interfaceRequests = drawInterface(game, atlasTexture, windowViewport, context.inventoryOpen);
             applyInterfaceRequests(context, game, interfaceRequests);
-            // Normalize coordinate spaces from system values to layout simulation pixels
+
+            // 3.4 Normalize coordinate spaces from system values to layout simulation pixels
             const std::optional<glm::vec2 > internalCursor =
                 windowToInternal(reading.cursor, reading.size, reading.framebufferSize);
             breakTileIfRequested(context, game, internalCursor);
-            const std::optional<glm::vec2> gameCursor =
-                gameplayCursor(context, internalCursor, ImGui::GetIO().WantCaptureMouse);
-            // Determine blocks, update player controls, and advance simulation ticks
+            const std::optional<glm::vec2> gameCursor = gameplayCursor(context, internalCursor, ImGui::GetIO().WantCaptureMouse);
+
+            // 3.5 Determine blocks, update player controls, and advance simulation ticks
             const bool simulationBlocked = context.inventoryOpen || game.complete();
-            preparePlayerInput(
-                context, simulationBlocked, gameCursor, ImGui::GetIO().WantCaptureKeyboard);
+            preparePlayerInput( context, simulationBlocked, gameCursor, ImGui::GetIO().WantCaptureKeyboard);
             runGameUpdates(context, game, fixedStep, frameSeconds, simulationBlocked, gameCursor);
+
             // 4. Render Pipeline Execution
             const RenderScene scene = game.buildScene();
             renderer.render(scene, reading.framebufferSize.x, reading.framebufferSize.y);
-            // Display visual overlays for debugging if toggled on
+
+            // 4.1 Display visual overlays for debugging if toggled on
             if (context.showDebugOverlay)
             {
                 drawDebugTools( game.debugOverlay( static_cast<float>(atlasTexture.width),
@@ -348,8 +357,10 @@ namespace simple_platformer
                                                    context.debugBodyIndex),
                                 windowViewport);
             }
-            imgui.render();   // Complete UI draw pipelines
-            window.present(); // Swap display buffers
+            // 4.2 Complete UI draw pipelines
+            imgui.render();
+            // 4.3 Swap display buffers
+            window.present();
         }
         return EXIT_SUCCESS;
     }

@@ -1,3 +1,13 @@
+/**
+ * @file        debug_tools.cpp
+ * @brief       Declares high-level diagnostic layout drawing functions for orchestrating
+ *              world overlay layers and text status windows.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "debug_tools.hpp"
 
 // User interface and rendering headers for the debug system

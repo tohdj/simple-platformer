@@ -1,5 +1,5 @@
 /**
- * @file npc_behaviour.hpp
+ * @file npc_system.hpp
  * @brief Main engine subsystem coordinator for updating NPC decision routines and tactical
  * behaviors.
  *
@@ -15,18 +15,8 @@ namespace simple_platformer
     class TileMap;
     class World;
 
-    /**
-     * @brief Orchestrates finite state transitions and input intention generation for all active
-     * world NPCs.
-     *
-     * Iterates through simulated agents to process tactical cognitive loops, query internal
-     * pathfinding graphs, and update command buffers based on frame context.
-     *
-     * @param map The static environment geometry grid layout context used to compute spatial path
-     * nodes.
-     * @param world The game world containing the mutable collection of simulated actors and path
-     * tables.
-     * @param deltaTime The discrete frame simulation duration step length in seconds.
-     */
+    // Orchestrates finite state transitions and input intention generation for all active world
+    // NPCs. Iterates through simulated agents to process tactical cognitive loops, query internal
+    // pathfinding graphs, and update command buffers based on frame context and step durations.
     void updateNpcBehaviour(const TileMap& map, World& world, float deltaTime);
 }

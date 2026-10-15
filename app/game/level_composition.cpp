@@ -1,3 +1,13 @@
+/**
+ * @file        level_composition.cpp
+ * @brief       Declares the GameLevel structure and engine factory functions for translating
+ *              authored layout definitions into runtime map environments and active world entities.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "level_composition.hpp"
 #include "content/game_catalogs.hpp"
 #include "content/actor_catalog.hpp"

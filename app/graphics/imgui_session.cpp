@@ -1,3 +1,13 @@
+/**
+ * @file        imgui_session.cpp
+ * @brief       Declares the ImGuiSession context wrapper class for managing the
+ *              lifecycle, input backends, and frame boundaries of Dear ImGui.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "imgui_session.hpp"
 
 #include <stdexcept>

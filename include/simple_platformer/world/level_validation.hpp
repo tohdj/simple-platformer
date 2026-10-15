@@ -1,5 +1,5 @@
 /**
- * @file validate_level_actors.hpp
+ * @file level_validation.hpp
  * @brief Spatial integrity validation and spawn point clearance verifications for level actor
  * configurations.
  *

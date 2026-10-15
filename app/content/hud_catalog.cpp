@@ -1,3 +1,13 @@
+/**
+ * @file        hud_catalog.cpp
+ * @brief       Declares the HudIcons structure and data pipeline functions for loading, 
+ *              parsing, and validating Heads-Up Display UI graphic sprite regions.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "hud_catalog.hpp"
 #include "content_diagnostics.hpp"
 #include "content_json.hpp"

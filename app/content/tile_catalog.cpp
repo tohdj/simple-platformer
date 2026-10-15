@@ -1,3 +1,13 @@
+/**
+ * @file        tile_catalog.cpp
+ * @brief       Declares the TileCatalog structures and functions for loading, 
+ *              parsing, and validating structural map tile configurations.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "tile_catalog.hpp"
 #include "content_diagnostics.hpp"
 #include "content_json.hpp"

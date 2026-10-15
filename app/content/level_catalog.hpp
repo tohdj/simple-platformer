@@ -1,3 +1,13 @@
+/**
+ * @file        level_catalog.hpp
+ * @brief       Declares the LevelCatalog structure and indexing functions for mapping,
+ *              loading, and ordering sequential level files in the game.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #pragma once
 
 #include <filesystem>

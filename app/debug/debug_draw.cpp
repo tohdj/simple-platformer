@@ -1,3 +1,13 @@
+/**
+ * @file        debug_draw.cpp
+ * @brief       Declares the primitive drawing helpers, screen-space projection mappings, 
+ *              and color palette constants used by diagnostic rendering pipelines.
+ *
+ * @author      Mohd Fadzuli
+ * @author      Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "debug_draw.hpp"
 
 #include <imgui.h>
