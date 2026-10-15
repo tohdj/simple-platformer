@@ -1,5 +1,5 @@
 /**
- * @file platformer_connection_builder.hpp
+ * @file platformer_connections.hpp
  * @brief Predictively simulates and compiles valid physics movement connections between grid cells.
  *
  * @author Mohd Fadzuli
@@ -19,31 +19,19 @@ namespace simple_platformer
 {
     class TileMap;
 
-    /**
-     * @brief Encapsulates completed edge connections alongside their evaluated calculation bounds.
-     */
+    // Encapsulates completed edge connections alongside their evaluated calculation bounds
     struct BuiltPlatformerConnections
     {
-        std::vector<RouteConnection> connections; /**< List of successful structural movements
-                                                     available from this grid cell. */
-        CellRange footprint; /**< Conservative grid boundary encapsulating all tiles probed or swept
-                                by the lookahead simulation. */
+        // List of successful structural movements available from this grid cell
+        std::vector<RouteConnection> connections;
+        // Conservative grid boundary encapsulating all tiles probed or swept by the lookahead
+        // simulation
+        CellRange footprint;
     };
 
-    /**
-     * @brief Simulates physical movement trajectories from every traversal surface supported by the
-     * profile in a cell.
-     *
-     * Runs short-term kinematic lookaheads (walks, jumps, drops, climbs) to evaluate which nearby
-     * cells are safely reachable. The returned footprint logs all checked cells, allowing graph
-     * regenerators to accurately invalidate this node if any surrounding tiles break.
-     *
-     * @param map The static environment geometry grid layout context used to compute solid blocks.
-     * @param cell The central grid cell position from which to simulate outgoing movements.
-     * @param profile The static movement limits and physical attributes of the actor category.
-     * @return BuiltPlatformerConnections A structure wrapping valid target edges and their total
-     * evaluation footprint.
-     */
+    // Runs short-term lookaheads (walks, jumps, drops, climbs) to find reachable neighboring cells
+    // The footprint logs checked cells so graph regenerators can invalidate this node if nearby
+    // tiles break
     BuiltPlatformerConnections buildPlatformerConnections(
         const TileMap& map,
         Cell cell,

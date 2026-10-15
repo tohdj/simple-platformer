@@ -1,3 +1,12 @@
+/**
+ * @file        actor_validation.cpp
+ * @brief       Provides validation signatures ensuring structurally complete and safe
+ * initialization parameters for new actors.
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright   Copyright (c) 2026 Simple Platformer. All rights reserved.
+ */
+
 #include "simple_platformer/actor/actor_validation.hpp"
 
 #include <stdexcept>
@@ -12,6 +21,7 @@ namespace simple_platformer
 {
     namespace
     {
+        // Ensures that the uninitialized actor does not possess a pre-assigned entity ID
         void validateIdentity(const Actor& actor)
         {
             if (isValid(actor.id))
@@ -20,6 +30,8 @@ namespace simple_platformer
             }
         }
 
+        // Assures that bounding boxes, positions, and velocity vectors contain finite, positive
+        // data
         void validateBody(const Actor& actor)
         {
             if (!isFinite(actor.body.bounds.topLeft) || !isFinite(actor.body.bounds.size) ||
@@ -30,8 +42,10 @@ namespace simple_platformer
             }
         }
 
+        // Verifies movement constraints, ensuring exactly one locomotion component is active
         void validateMovement(const Actor& actor)
         {
+            // XOR check: An actor must be exclusively a platformer or a flyer
             if (actor.platformerMovement.has_value() == actor.flyingMovement.has_value())
             {
                 throw std::invalid_argument("Actors require exactly one movement component");
@@ -42,6 +56,8 @@ namespace simple_platformer
                 throw std::invalid_argument(
                     "Flying movement speed must be finite and non-negative");
             }
+            // Climbing setups are structural extensions that depend directly on base platformer
+            // logic
             if (actor.surfaceClimb.has_value())
             {
                 if (!actor.platformerMovement.has_value())
@@ -52,6 +68,7 @@ namespace simple_platformer
             }
         }
 
+        // Validates visual dependencies, rendering structures, and clip arrays
         void validatePresentation(const Actor& actor)
         {
             if (actor.animator.has_value() && !actor.sprite.has_value())
@@ -68,8 +85,10 @@ namespace simple_platformer
             }
         }
 
+        // Enforces combat parameters, cooldown limits, attack exclusivity, and team layouts
         void validateCombat(const Actor& actor)
         {
+            // Verify structural parameter sanity fields for ranged configurations
             if (actor.rangedWeapon.has_value())
             {
                 const RangedWeapon& weapon = *actor.rangedWeapon;
@@ -84,6 +103,7 @@ namespace simple_platformer
                     throw std::invalid_argument("Actor ranged weapon data is invalid");
                 }
             }
+            // Verify proximity limits and damage scaling fields for melee profiles
             if (actor.bite.has_value())
             {
                 const BiteAttack& bite = *actor.bite;
@@ -100,16 +120,19 @@ namespace simple_platformer
             {
                 throw std::invalid_argument("Actor contact damage must be positive");
             }
+            // Ensure entities do not carry more than one active primary weapon capability
             const int attacks = static_cast<int>(actor.rangedWeapon.has_value()) +
                                 static_cast<int>(actor.bite.has_value());
             if (attacks > 1)
             {
                 throw std::invalid_argument("An actor can have only one primary attack");
             }
+            // Aggressive or hazardous actors cannot belong to the passive Neutral team alliance
             if ((attacks > 0 || actor.contactDamage.has_value()) && actor.team == Team::Neutral)
             {
                 throw std::invalid_argument("Actors with attacks require a non-neutral team");
             }
+            // Confirm health value variables stay bounded cleanly within safe range thresholds
             if (actor.health.has_value() &&
                 (actor.health->maximum <= 0 || actor.health->current < 0 ||
                  actor.health->current > actor.health->maximum))
@@ -118,12 +141,15 @@ namespace simple_platformer
             }
         }
 
+        // Verifies component combinations and variables for artificial intelligence tracking loops
         void validateNpc(const Actor& actor)
         {
             const bool hasAnyNpcComponent = actor.brain.has_value() || actor.senses.has_value() ||
                                             actor.perception.has_value() ||
                                             actor.patrol.has_value() ||
                                             actor.pathFollower.has_value();
+            // Core NPC behaviors depend on a closed loop of all four structural modules working
+            // together
             const bool hasRequiredNpcComponents =
                 actor.brain.has_value() && actor.perception.has_value() &&
                 actor.senses.has_value() && actor.pathFollower.has_value();
@@ -132,6 +158,7 @@ namespace simple_platformer
                 throw std::invalid_argument(
                     "NPC actors require a brain, perception, senses, and path follower");
             }
+            // Check state machines and temporal tracking variables within the brain instance
             if (actor.brain.has_value())
             {
                 requireSeconds(actor.brain->stateElapsed, "NPC state elapsed");
@@ -146,6 +173,7 @@ namespace simple_platformer
                     throw std::invalid_argument("NPC brain runtime data is invalid");
                 }
             }
+            // Ensure sensory distance caps and search interval profiles map out cleanly
             if (actor.senses.has_value())
             {
                 requireSeconds(actor.senses->targetMemoryDuration, "NPC target memory duration");
@@ -163,6 +191,7 @@ namespace simple_platformer
             }
         }
 
+        // Confirms that the navigation waypoint tracking module contains valid timers
         void validatePathFollower(const Actor& actor)
         {
             if (actor.pathFollower.has_value())
@@ -172,14 +201,30 @@ namespace simple_platformer
         }
     }
 
+    // Runs an exhaustive suite of structural validity checks on an actor before registering it in
+    // the world
     void validateActor(const Actor& actor)
     {
+        // Assures the actor ID is unassigned and reserved for the factory setup
         validateIdentity(actor);
+
+        // Confirms spatial dimensions, origin positions, and velocity vectors are valid
         validateBody(actor);
+
+        // Verifies the exclusive choice between platformer or flying movement configurations
         validateMovement(actor);
+
+        // Check that animation controllers match active, valid sprite configurations
         validatePresentation(actor);
+
+        // Audits health boundaries, attack properties, cooldown durations, and team alliances
         validateCombat(actor);
+
+        // Enforces co-dependency rule constraints across modular AI component tracking blocks
         validateNpc(actor);
+
+        // Confirms frame macro timelines inside active path trackers match valid numbers
         validatePathFollower(actor);
     }
+
 }

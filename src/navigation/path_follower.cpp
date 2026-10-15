@@ -1,3 +1,13 @@
+/**
+ * @file path_follower.cpp
+ * @brief Waypoint evaluation state machines and input macro replay loops for following navigation
+ * paths.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/navigation/path_follower.hpp"
 
 #include <algorithm>
@@ -268,6 +278,7 @@ namespace simple_platformer
         }
     }
 
+    // Assigns a new path and resets tracking variables back to the starting step
     void setPath(PathFollower& follower, NavigationPath path)
     {
         follower.path = std::move(path);
@@ -276,6 +287,7 @@ namespace simple_platformer
         follower.programElapsed = 0.0F;
     }
 
+    // Completely purges the active path and resets all internal sequence tracking state
     void clearPath(PathFollower& follower)
     {
         follower.path.reset();
@@ -285,17 +297,20 @@ namespace simple_platformer
         follower.goal.reset();
     }
 
+    // Returns true only if a path is bound and the follower index has processed all waypoints
     bool pathComplete(const PathFollower& follower)
     {
         return follower.path.has_value() && follower.nextStep >= follower.path->waypoints.size();
     }
 
+    // Calculates flight propulsion inputs targeting sequential spatial waypoints
     InputIntentions followFlyingPath(
         const Aabb& bounds,
         const FlyingMovement& movement,
         PathFollower& follower,
         float deltaTime)
     {
+        // Enforce valid physical bounds and parameters
         requireSeconds(deltaTime, "Flying path following time step");
         if (!isFiniteNonNegative(movement.speed))
         {
@@ -306,12 +321,17 @@ namespace simple_platformer
         {
             return {};
         }
+
+        // Determine the maximum distance the agent can travel during this simulation tick
         const float maximumMovement = movement.speed * deltaTime;
         if (!std::isfinite(maximumMovement))
         {
             throw std::invalid_argument("Flying path movement must be finite");
         }
+
         const glm::vec2 feet = feetOf(bounds);
+
+        // Process waypoints sequentially until an unreached target is encountered
         while (follower.nextStep < follower.path->waypoints.size())
         {
             const Waypoint& waypoint = follower.path->waypoints[follower.nextStep];
@@ -319,22 +339,28 @@ namespace simple_platformer
             {
                 throw std::invalid_argument("A flying actor requires flying path steps");
             }
+
             const glm::vec2 offset = waypoint.feet - feet;
             const float distance = glm::length(offset);
+
+            // If the agent is too far from the waypoint, compute the steering direction vector
             if (distance > FlyingArrivalDistance)
             {
-                // Straight at the waypoint, and no further than it this tick.
                 InputIntentions intentions;
+                // Scale directional vector dynamically if the target is within reach this frame
                 intentions.direction = maximumMovement > 0.0F && distance <= maximumMovement
                                            ? offset / maximumMovement
                                            : glm::normalize(offset);
                 return intentions;
             }
+
+            // Waypoint reached; consume it and advance to the next step
             ++follower.nextStep;
         }
         return {};
     }
 
+    // Iterates through active platformer navigation steps to compute steering and macro inputs
     InputIntentions followPlatformerPath(
         const Body& body,
         const PlatformerMovement& movement,
@@ -348,14 +374,15 @@ namespace simple_platformer
             return {};
         }
 
-        // Skip completed steps in the same tick; return intentions for the first unfinished
-        // one. A failed step clears the path and returns complete == false, so this loop
-        // must return before reading the cleared path or its waypoint again.
+        // Loop through steps to skip completed waypoints within the current tick;
+        // stops and returns steering instructions at the first incomplete node encountered.
         while (follower.nextStep < follower.path->waypoints.size())
         {
             const Waypoint& waypoint = follower.path->waypoints[follower.nextStep];
             const glm::vec2 start = stepStart(*follower.path, follower.nextStep);
             StepProgress progress;
+
+            // Delegate routing updates to the appropriate specialized context processor
             switch (waypoint.traversal)
             {
             case Traversal::Fly:
@@ -376,14 +403,21 @@ namespace simple_platformer
                 progress = followAirborneStep(body, movement, follower, waypoint, start, deltaTime);
                 break;
             }
+
+            // If the current step did not finish executing this tick, return its input actions
+            // immediately
             if (!progress.complete)
             {
                 return progress.intentions;
             }
+
+            // Step completed; advance index and reset tracking variables for the next sequential
+            // step
             ++follower.nextStep;
             follower.phase = PathStepPhase::ApproachStart;
             follower.programElapsed = 0.0F;
         }
         return {};
     }
+
 }

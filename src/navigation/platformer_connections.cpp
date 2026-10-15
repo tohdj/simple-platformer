@@ -1,3 +1,12 @@
+/**
+ * @file platformer_connections.hpp
+ * @brief Predictively simulates and compiles valid physics movement connections between grid cells.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/navigation/platformer_connections.hpp"
 
 #include <algorithm>
@@ -581,34 +590,58 @@ namespace simple_platformer
         Cell cell,
         const PlatformerTraversalProfile& profile)
     {
+        // Ensure the simulation physics time slice is valid and positive
         requirePositiveSeconds(profile.stepSeconds, "Navigation simulation step");
+
+        // Analyze the environment directly surrounding the cell to filter out impossible traversal
+        // directions
         const ConnectionPlan plan = planPlatformerConnections(map, cell, profile.size);
         BuiltPlatformerConnections combined{{}, plan.footprint};
+
+        // Iterate through and simulate all raw movement path actions matching the current
+        // environment context
         for (const TraversalAttempt& attempt : plan.attempts)
         {
+            // Route processing down to specialized linear walking or swept airborne physics
+            // simulations
             BuiltPlatformerConnections attemptResult =
                 attempt.traversal == Traversal::Walk
                     ? buildWalkConnections(map, cell, profile, attempt.direction)
                     : buildAirborneConnection(map, cell, profile, attempt);
+
+            // Expand the complete calculation footprint to cover all new nodes probed during the
+            // simulation
             combined.footprint = unionOf(combined.footprint, attemptResult.footprint);
 
+            // Deduplicate path possibilities by keeping only the cheapest connection to a duplicate
+            // destination node
             for (RouteConnection& connection : attemptResult.connections)
             {
                 keepCheapest(combined.connections, std::move(connection));
             }
         }
+
+        // Append ladders, walls, and vertical surface grabbing edges if the profile supports
+        // climbing mechanics
         if (profile.climb.has_value())
         {
+            // Sanity check climbing limits and physics parameter integrity before evaluating edge
+            // geometry
             validateSurfaceClimbConfig(*profile.climb);
+
             BuiltPlatformerConnections climbs =
                 buildClimbConnections(map, cell, profile, *profile.climb);
+
+            // Integrate climb search volumes into the final aggregate path dependency footprint
             combined.footprint = unionOf(combined.footprint, climbs.footprint);
 
+            // Directly append all vertical connections found to the routing list
             for (RouteConnection& connection : climbs.connections)
             {
                 combined.connections.push_back(std::move(connection));
             }
         }
+
         return combined;
     }
 }

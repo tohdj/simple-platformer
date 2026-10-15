@@ -1,3 +1,13 @@
+/**
+ * @file actor_navigation.cpp
+ * @brief Spatial path-finding algorithms, traversal profile generation, and navigation setup
+ * routines.
+ *
+ * @author Mohd Fadzuli
+ * @author Adapted by: Toh Da Jun
+ * @copyright Copyright (c) 2026 simple_platformer. All rights reserved.
+ */
+
 #include "simple_platformer/navigation/actor_navigation.hpp"
 
 #include <algorithm>
@@ -314,6 +324,17 @@ namespace simple_platformer
         }
     }
 
+    /**
+     * @brief Generates a navigation traversal profile for a platforming actor.
+     *
+     * Extracts physical dimensions, movement capabilities, and climbing configurations
+     * required to calculate valid pathfinding nodes and connections.
+     *
+     * @param actor The actor requesting a traversal profile.
+     * @param stepSeconds The fixed physics time step used for movement simulation.
+     * @return PlatformerTraversalProfile The completed profile configuration.
+     * @throws std::invalid_argument If the actor lacks required platformer movement components.
+     */
     PlatformerTraversalProfile platformerTraversalProfileFor(const Actor& actor, float stepSeconds)
     {
         if (!actor.platformerMovement.has_value())
@@ -321,6 +342,7 @@ namespace simple_platformer
             throw std::invalid_argument(
                 "A platformer traversal profile requires platformer movement");
         }
+
         return {
             actor.body.bounds.size,
             actor.platformerMovement->config,
@@ -330,6 +352,20 @@ namespace simple_platformer
                 : std::nullopt};
     }
 
+    /**
+     * @brief Calculates a navigation path for an actor toward a specified target.
+     *
+     * Dynamically routes the actor based on their movement type, prioritizing flying
+     * paths over grounded/climbing platformer paths.
+     *
+     * @param map The static tile map layout.
+     * @param actor The actor attempting to navigate.
+     * @param goalFeet The target destination coordinate (anchored at the actor's feet).
+     * @param stepSeconds The physics time step size.
+     * @param connections The lookup table containing pre-calculated valid platformer transitions.
+     * @return std::optional<NavigationPathResult> The path solution if successful, or std::nullopt
+     * if no path exists.
+     */
     std::optional<NavigationPathResult> findActorPath(
         const TileMap& map,
         const Actor& actor,
@@ -337,14 +373,18 @@ namespace simple_platformer
         float stepSeconds,
         PlatformerConnectionTable& connections)
     {
+        // Route 1: Handle airborne/flying navigation if the capability exists
         if (actor.flyingMovement.has_value())
         {
             return findFlyingPath(map, actor.body.bounds, goalFeet);
         }
+
+        // Route 2: Handle grounded navigation (requires platformer capabilities)
         if (!actor.platformerMovement.has_value())
         {
-            return std::nullopt;
+            return std::nullopt; // Cannot navigate if neither flying nor platforming is supported
         }
+
         return findPlatformerPath(
             map,
             actor.body.bounds,
@@ -353,11 +393,24 @@ namespace simple_platformer
             connections);
     }
 
+    /**
+     * @brief Pre-calculates and caches platformer navigation data for all relevant actors.
+     *
+     * Scans the world for platforming actors that follow paths, generating or reusing
+     * graph connections within the shared connection table to minimize runtime overhead.
+     *
+     * @param map The static tile map layout.
+     * @param world The game world containing the actors and the connection table cache.
+     * @param stepSeconds The physics time step size.
+     */
     void prepareNavigation(const TileMap& map, World& world, float stepSeconds)
     {
         requirePositiveSeconds(stepSeconds, "Navigation step");
+
         PlatformerConnectionTable& table = world.platformerConnections();
-        // Actors with the same profile share a table; preparing it again reuses the build.
+
+        // Cache connections for all actively navigating platformer actors.
+        // Actors sharing identical profiles automatically reuse existing graph builds.
         for (const Actor& actor : world.actors())
         {
             if (actor.pathFollower.has_value() && actor.platformerMovement.has_value())

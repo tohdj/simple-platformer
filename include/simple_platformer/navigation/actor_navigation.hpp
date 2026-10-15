@@ -1,5 +1,5 @@
 /**
- * @file path_finding.hpp
+ * @file actor_navigation.hpp
  * @brief Spatial path-finding algorithms, traversal profile generation, and navigation setup
  * routines.
  *

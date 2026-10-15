@@ -26,97 +26,65 @@ namespace simple_platformer
     struct PlatformerMovement;
     struct SurfaceClimb;
 
-    /**
-     * @brief Identifies the functional verification phase inside an active waypoint transition
-     * sequence.
-     */
+    // Identifies the verification phase inside an active waypoint transition sequence
     enum class PathStepPhase
     {
-        ApproachStart, /**< Aligning the physical body with the starting point of the current
-                          waypoint edge. */
-        ReplayInputs,  /**< Executing a pre-recorded frame-by-frame macro program (e.g., executing a
-                          precise jump code). */
-        AwaitArrival   /**< Monitoring kinematic conditions until physics updates settle the body at
-                          the target destination bounds. */
+        // Aligning the physical body with the starting point of the current waypoint edge
+        ApproachStart,
+        // Executing a pre-recorded frame-by-frame macro program (e.g., precise jump input)
+        ReplayInputs,
+        // Monitoring kinematic conditions until physics updates settle the body at the target
+        // bounds
+        AwaitArrival
     };
 
-    /**
-     * @brief Runtime state tracking an actor's progress along a planned waypoint trajectory.
-     * @note Advancing the follower generates steering command intentions, whereas external
-     * kinematics updates resolve actual translation.
-     */
+    // Runtime state tracking an actor's progress along a planned waypoint trajectory
+    // Note: Advancing the follower generates steering commands; external physics updates resolve
+    // actual movement.
     struct PathFollower
     {
-        std::optional<NavigationPath>
-            path; /**< The active waypoint collection sequence currently being tracked. */
-        std::size_t nextStep = 0; /**< Index identifier matching the target step node. Points to
-                                     array bounds length when complete. */
-        PathStepPhase phase = PathStepPhase::ApproachStart; /**< Active sub-step tracking condition
-                                                               guiding steering macros. */
-        float programElapsed = 0.0F;   /**< Accumulated duration in seconds spent processing the
-                                          active step's pre-recorded macro program. */
-        std::optional<glm::vec2> goal; /**< The original spatial target position; used to throttle
-                                          redundant search updates for stationary goals. */
-        std::size_t breaksWhenPlanned =
-            0; /**< Historic read offset tracking the map's tile break registry during path
-                  initialization; mismatches trigger automatic path recalculations. */
+        // The active waypoint collection sequence currently being tracked
+        std::optional<NavigationPath> path;
+        // Index identifier matching the target step node (equals array size when complete)
+        std::size_t nextStep = 0;
+        // Active sub-step tracking condition guiding steering macros
+        PathStepPhase phase = PathStepPhase::ApproachStart;
+        // Accumulated duration (seconds) spent processing the active step's macro program
+        float programElapsed = 0.0F;
+        // The original target position; used to throttle redundant search updates for stationary
+        // goals
+        std::optional<glm::vec2> goal;
+        // Map's tile break registry version at path initialization; mismatches trigger automatic
+        // recalculations
+        std::size_t breaksWhenPlanned = 0;
     };
 
-    /** @brief Initializes the follower state tracking fields and transitions alignment to the first
-     * waypoint node. */
+    // Initializes the follower state tracking fields and transitions alignment to the first
+    // waypoint node
     void setPath(PathFollower& follower, NavigationPath path);
 
-    /** @brief Purges all loaded waypoint sequences and resets internal tracking phase indicators.
-     */
+    // Purges all loaded waypoint sequences and resets internal tracking phase indicators
     void clearPath(PathFollower& follower);
 
-    /** @brief Verifies if all registered waypoint nodes have been successfully cleared. Always
-     * false if no path is bound. */
+    // Verifies if all registered waypoint nodes have been successfully cleared (false if no path is
+    // bound)
     bool pathComplete(const PathFollower& follower);
 
-    /**
-     * @brief Calculates steering vectors and input intentions to guide an airborne agent along its
-     * path layout.
-     *
-     * Computes direct line-of-sight tracking vectors towards successive nodes, applying damping
-     * parameters on the terminal frame to ensure precise positioning atop waypoints.
-     *
-     * @param bounds Bounding parameters mapping the spatial footprint of the flying agent.
-     * @param movement Physics parameters defining maximum speed capacities for flight locomotion.
-     * @param follower Runtime tracking module containing path sequences and active step states.
-     * @param deltaTime The discrete frame simulation duration step slice measured in seconds.
-     * @return InputIntentions Computed steering bits driving flight propulsion.
-     */
+    // Calculates steering vectors and input intentions to guide an airborne agent along its path
+    // layout Computes line-of-sight tracking vectors, applying damping parameters on the terminal
+    // frame for precise alignment
     InputIntentions followFlyingPath(
         const Aabb& bounds,
         const FlyingMovement& movement,
         PathFollower& follower,
         float deltaTime);
 
-    /**
-     * @brief Calculates steering input macros to guide a platforming agent along its trajectory.
-     *
-     * Handles complex transition states depending on the active traversal type:
-     * - **Walk:** Navigates directly toward target coordinates and initiates braking sequences at
-     * destination limits.
-     * - **Jump/Fall:** Aligns with takeoff edges, executes recorded macro inputs, and verifies
-     * arrival once grounding states stabilize.
-     * - **Climb:** Commands alignment to surface entry planes, then loops input recordings.
-     * Requires a valid climb config context.
-     *
-     * @note Unexpected deviations from waypoint perimeters terminate tracking. Grip commands
-     * persist between transitions.
-     *
-     * @param body Raw physics configuration tracking positioning coordinates and current velocity
-     * vectors.
-     * @param movement Component configuration storing runtime grounding flags and memory indicators
-     * for platformer motion.
-     * @param follower Runtime tracking module containing path sequences and active step states.
-     * @param deltaTime The discrete frame simulation duration step slice measured in seconds.
-     * @param climb Optional surface alignment data mapping active vertical or horizontal attachment
-     * parameters.
-     * @return InputIntentions Computed inputs driving platformer kinematics.
-     */
+    // Calculates steering input macros to guide a platforming agent along its trajectory
+    // Walk: Navigates toward target coordinates and initiates braking sequences at destination
+    // limits Jump/Fall: Aligns with takeoff edges, plays macro inputs, and verifies arrival once
+    // grounding stabilizes Climb: Commands alignment to surface entry planes, then loops input
+    // recordings (requires valid climb data) Note: Unexpected deviations from waypoint perimeters
+    // terminate tracking; grip commands persist between transitions
     InputIntentions followPlatformerPath(
         const Body& body,
         const PlatformerMovement& movement,
