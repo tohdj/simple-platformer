@@ -353,8 +353,8 @@ namespace simple_platformer
             if (context.showDebugOverlay)
             {
                 drawDebugTools( game.debugOverlay( static_cast<float>(atlasTexture.width),
-                                                   internalCursor,
-                                                   context.debugBodyIndex),
+                                                   internalCursor, context.debugBodyIndex,
+                                                   frameClock.getFramerate()),
                                 windowViewport);
             }
             // 4.2 Complete UI draw pipelines

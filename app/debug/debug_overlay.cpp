@@ -398,7 +398,9 @@ namespace simple_platformer
         // crosshairs
         scene.breakableCellUnderCursor = breakableCellUnderCursor(map, navigation.cursorWorld);
 
-        scene.framerate = framerate.value();
+        // Store the current framerate to the scene
+        if (framerate.has_value())
+            scene.framerate = framerate.value();
         return scene;
     }
 }
